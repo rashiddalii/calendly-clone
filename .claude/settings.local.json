@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep *)",
+      "Bash(claude mcp *)",
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "mcp__stitch__list_projects",
+      "mcp__stitch__list_screens",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5433/calendly_clone\" npx prisma db push)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5433/calendly_clone\" npm run build)"
+    ]
+  }
+}

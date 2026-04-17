@@ -1,0 +1,25 @@
+# dependencies & build output
+node_modules
+.next
+out
+
+# git & editor
+.git
+.github
+.cursor
+.idea
+.vscode
+.claude
+
+# env & local secrets (never bake into images)
+.env
+.env.*
+!.env.example
+
+# misc
+*.md
+coverage
+terminals
+assets
+**/.DS_Store
+Thumbs.db

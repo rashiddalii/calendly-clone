@@ -125,3 +125,17 @@ Rules:
 - Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
 - If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
 - After modifying code files in this session, run `python3 -c "from graphify.watch import _rebuild_code; from pathlib import Path; _rebuild_code(Path('.'))"` to keep the graph current
+
+## Build Plan & Progress
+
+- **ALWAYS read `CLIENT_DEMO_BUILD_PLAN.md` at the start of each session** — it is the authoritative roadmap and tracks which phases are complete.
+- The implementation snapshot table at the top of that file shows the current status of each phase.
+- Update the snapshot table in `CLIENT_DEMO_BUILD_PLAN.md` whenever a phase is completed.
+
+## Design System
+- All UI designs are generated in Google Stitch and exported as DESIGN.md
+- ALWAYS reference DESIGN.md for colors, typography, spacing, and component patterns
+- Convert Stitch HTML output to React + shadcn/ui + Tailwind CSS
+- Never invent new colors or spacing — use only what's defined in DESIGN.md
+- If DESIGN.md is not present, use: primary #6366f1 (indigo), 
+  neutral grays, Inter font, 8px spacing grid
