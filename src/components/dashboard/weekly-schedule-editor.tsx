@@ -1,0 +1,233 @@
+"use client"
+
+import { useState, useTransition } from "react"
+import { Plus, Trash2 } from "lucide-react"
+import { toast } from "sonner"
+import { saveWeeklyScheduleAction } from "@/lib/actions/availability"
+
+type Slot = { startTime: string; endTime: string }
+type DayState = { enabled: boolean; slots: Slot[] }
+type ScheduleState = Record<number, DayState>
+
+const DAY_NAMES = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+]
+
+const DEFAULT_SLOT: Slot = { startTime: "09:00", endTime: "17:00" }
+
+function buildInitial(
+  rowsByDay: Record<number, Slot[]>,
+): ScheduleState {
+  const state: ScheduleState = {} as ScheduleState
+  for (let d = 0; d < 7; d++) {
+    const slots = rowsByDay[d] ?? []
+    state[d] = {
+      enabled: slots.length > 0,
+      slots: slots.length > 0 ? slots : [DEFAULT_SLOT],
+    }
+  }
+  return state
+}
+
+export function WeeklyScheduleEditor({
+  initial,
+}: {
+  initial: Record<number, Slot[]>
+}) {
+  const [state, setState] = useState<ScheduleState>(() => buildInitial(initial))
+  const [isPending, startTransition] = useTransition()
+
+  const toggleDay = (day: number) => {
+    setState((s) => ({
+      ...s,
+      [day]: { ...s[day], enabled: !s[day].enabled },
+    }))
+  }
+
+  const updateSlot = (
+    day: number,
+    index: number,
+    field: "startTime" | "endTime",
+    value: string,
+  ) => {
+    setState((s) => {
+      const next = { ...s }
+      const slots = [...next[day].slots]
+      slots[index] = { ...slots[index], [field]: value }
+      next[day] = { ...next[day], slots }
+      return next
+    })
+  }
+
+  const addSlot = (day: number) => {
+    setState((s) => ({
+      ...s,
+      [day]: {
+        ...s[day],
+        slots: [...s[day].slots, { startTime: "09:00", endTime: "17:00" }],
+      },
+    }))
+  }
+
+  const removeSlot = (day: number, index: number) => {
+    setState((s) => {
+      const slots = s[day].slots.filter((_, i) => i !== index)
+      return {
+        ...s,
+        [day]: {
+          enabled: slots.length > 0 ? s[day].enabled : false,
+          slots: slots.length > 0 ? slots : [DEFAULT_SLOT],
+        },
+      }
+    })
+  }
+
+  const copyToWeekdays = (day: number) => {
+    const source = state[day]
+    setState((s) => {
+      const next = { ...s }
+      for (let d = 1; d <= 5; d++) {
+        if (d === day) continue
+        next[d] = {
+          enabled: source.enabled,
+          slots: source.slots.map((slot) => ({ ...slot })),
+        }
+      }
+      return next
+    })
+    toast.success("Applied to weekdays")
+  }
+
+  const save = () => {
+    startTransition(async () => {
+      const payload = {
+        days: Object.fromEntries(
+          Object.entries(state).map(([d, cfg]) => [d, cfg]),
+        ),
+      }
+      const result = await saveWeeklyScheduleAction(payload)
+      if (result.status === "success") {
+        toast.success("Schedule saved")
+      } else {
+        toast.error(result.error)
+      }
+    })
+  }
+
+  return (
+    <section className="flex flex-col gap-4 rounded-xl bg-surface-lowest p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h2 className="font-heading text-xl font-semibold">Weekly hours</h2>
+          <p className="mt-1 text-sm text-on-surface-variant">
+            Set when you&apos;re regularly available each week.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={save}
+          disabled={isPending}
+          className="cta-gradient inline-flex h-9 items-center rounded-md px-4 text-sm font-medium disabled:opacity-60"
+        >
+          {isPending ? "Saving…" : "Save"}
+        </button>
+      </div>
+
+      <ul className="flex flex-col">
+        {[1, 2, 3, 4, 5, 6, 0].map((day) => {
+          const cfg = state[day]
+          return (
+            <li
+              key={day}
+              className="flex flex-col gap-3 py-3 md:flex-row md:items-start md:gap-6"
+            >
+              <div className="flex w-40 shrink-0 items-center gap-3">
+                <input
+                  type="checkbox"
+                  checked={cfg.enabled}
+                  onChange={() => toggleDay(day)}
+                  className="h-4 w-4 rounded accent-[color:var(--brand)]"
+                  id={`day-${day}`}
+                />
+                <label
+                  htmlFor={`day-${day}`}
+                  className="text-sm font-medium text-on-surface"
+                >
+                  {DAY_NAMES[day]}
+                </label>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-2">
+                {cfg.enabled ? (
+                  cfg.slots.map((slot, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <input
+                        type="time"
+                        value={slot.startTime}
+                        step={300}
+                        onChange={(e) =>
+                          updateSlot(day, i, "startTime", e.target.value)
+                        }
+                        className="h-9 rounded-md border-0 bg-surface-high px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+                      />
+                      <span className="text-sm text-on-surface-variant">–</span>
+                      <input
+                        type="time"
+                        value={slot.endTime}
+                        step={300}
+                        onChange={(e) =>
+                          updateSlot(day, i, "endTime", e.target.value)
+                        }
+                        className="h-9 rounded-md border-0 bg-surface-high px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeSlot(day, i)}
+                        aria-label="Remove interval"
+                        className="rounded-md p-2 text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <p className="py-2 text-sm text-on-surface-variant">
+                    Unavailable
+                  </p>
+                )}
+
+                {cfg.enabled && (
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => addSlot(day)}
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[color:var(--brand)] transition-colors hover:bg-surface-low"
+                    >
+                      <Plus className="h-3 w-3" />
+                      Add interval
+                    </button>
+                    {day >= 1 && day <= 5 && (
+                      <button
+                        type="button"
+                        onClick={() => copyToWeekdays(day)}
+                        className="rounded-md px-2 py-1 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface"
+                      >
+                        Copy to weekdays
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </section>
+  )
+}
