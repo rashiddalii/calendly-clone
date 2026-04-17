@@ -1,0 +1,99 @@
+"use client"
+
+import { useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { handleOAuthSignIn } from "@/lib/actions/auth"
+import { disconnectGoogleCalendarAction } from "@/lib/actions/user"
+
+interface GoogleCalendarSectionProps {
+  isConnected: boolean
+}
+
+function GoogleIcon() {
+  return (
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 48 48"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <path
+        d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+        fill="#FFC107"
+      />
+      <path
+        d="M6.306 14.691l6.571 4.819C14.655 15.108 19.001 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"
+        fill="#FF3D00"
+      />
+      <path
+        d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.211 35.091 26.715 36 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"
+        fill="#4CAF50"
+      />
+      <path
+        d="M43.611 20.083H42V20H24v8h11.303c-.792 2.237-2.231 4.166-4.087 5.571l6.19 5.238C42.012 35.245 44 30 44 24c0-1.341-.138-2.65-.389-3.917z"
+        fill="#1976D2"
+      />
+    </svg>
+  )
+}
+
+export function GoogleCalendarSection({ isConnected }: GoogleCalendarSectionProps) {
+  const router = useRouter()
+  const [isDisconnecting, startDisconnect] = useTransition()
+
+  const handleDisconnect = () => {
+    if (!window.confirm("Disconnect Google Calendar? Busy times will no longer be read from your calendar.")) return
+    startDisconnect(async () => {
+      await disconnectGoogleCalendarAction()
+      router.refresh()
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-4 rounded-xl bg-[#ffffff] p-6">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#f6f2fb]">
+            <GoogleIcon />
+          </div>
+          <div>
+            <p className="font-medium text-[#32323b]">Google Calendar</p>
+            <p className="mt-0.5 text-sm text-[#5f5e68]">
+              Sync your calendar to block busy times and auto-create events
+            </p>
+          </div>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-3">
+          {isConnected ? (
+            <>
+              <span className="rounded-full bg-[#dcfce7] px-2.5 py-0.5 text-xs font-medium text-[#166534]">
+                Connected
+              </span>
+              <button
+                type="button"
+                onClick={handleDisconnect}
+                disabled={isDisconnecting}
+                className="rounded-[0.75rem] bg-[#eae7f1] px-4 py-2 text-sm font-medium text-[#32323b] transition-colors hover:bg-[#e4e1ed] disabled:opacity-50"
+              >
+                {isDisconnecting ? "Disconnecting…" : "Disconnect"}
+              </button>
+            </>
+          ) : (
+            <form action={handleOAuthSignIn}>
+              <input type="hidden" name="provider" value="google" />
+              <button
+                type="submit"
+                className="cta-gradient inline-flex h-9 items-center gap-2 rounded-[0.75rem] px-4 text-sm font-medium"
+              >
+                Connect Google Calendar
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
