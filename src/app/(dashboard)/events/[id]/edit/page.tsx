@@ -4,6 +4,7 @@ import { ChevronLeft } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { getEventTypeById } from "@/lib/services/event-type"
 import { EventTypeForm } from "@/components/dashboard/event-type-form"
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header"
 
 export const metadata = { title: "Edit event type" }
 
@@ -24,17 +25,16 @@ export default async function EditEventTypePage({
       <div>
         <Link
           href="/events"
-          className="inline-flex items-center gap-1 text-sm text-on-surface-variant transition-colors hover:text-on-surface"
+          className="inline-flex items-center gap-1 text-sm font-medium text-[#006BFF] hover:underline"
         >
           <ChevronLeft className="h-4 w-4" />
-          Back to event types
+          Back to scheduling
         </Link>
-        <h1 className="mt-4 font-heading text-3xl font-semibold">
-          Edit event type
-        </h1>
-        <p className="mt-1 text-sm text-on-surface-variant">
-          Tweak the details, scheduling rules, or pause if you need a break.
-        </p>
+        <DashboardPageHeader
+          className="mb-0 mt-6"
+          title="Edit event type"
+          description="Tweak the details, scheduling rules, or pause if you need a break."
+        />
       </div>
 
       <EventTypeForm

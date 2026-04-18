@@ -6,6 +6,7 @@ import {
 } from "@/lib/services/availability"
 import { WeeklyScheduleEditor } from "@/components/dashboard/weekly-schedule-editor"
 import { DateOverrideCalendar } from "@/components/dashboard/date-override-calendar"
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header"
 
 export const metadata = { title: "Availability" }
 
@@ -21,15 +22,12 @@ export default async function AvailabilityPage() {
   const normalized = normalizeWeeklySchedule(availability)
 
   return (
-    <div className="flex flex-col gap-8">
-      <header>
-        <h1 className="font-heading text-3xl font-semibold text-on-surface">
-          Availability
-        </h1>
-        <p className="mt-1 text-sm text-on-surface-variant">
-          Tell Fluid when you&apos;re free. Everything else flows from here.
-        </p>
-      </header>
+    <div className="mx-auto max-w-4xl">
+      <DashboardPageHeader
+        title="Availability"
+        showHelp
+        description="Tell Fluid when you're free. Everything else flows from here."
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
         <WeeklyScheduleEditor initial={normalized} />

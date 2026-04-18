@@ -4,6 +4,7 @@ import { prisma } from "@/app/lib/db"
 import { isGoogleCalendarConnected } from "@/lib/services/calendar"
 import { ProfileForm } from "@/components/dashboard/profile-form"
 import { GoogleCalendarSection } from "./google-calendar-section"
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header"
 
 export const metadata = { title: "Settings — Fluid" }
 
@@ -29,29 +30,19 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-10">
-      <header>
-        <h1 className="font-heading text-3xl font-semibold text-on-surface">
-          Settings
-        </h1>
-        <p className="mt-1 text-sm text-on-surface-variant">
-          Manage your profile and connected services.
-        </p>
-      </header>
+    <div className="mx-auto max-w-4xl">
+      <DashboardPageHeader
+        title="Settings"
+        description="Manage your profile and connected services."
+      />
 
-      {/* Section 1 — Profile */}
-      <section className="rounded-2xl bg-[#f6f2fb] p-6 md:p-8">
-        <h2 className="font-heading text-xl font-semibold text-[#32323b] mb-6">
-          Profile
-        </h2>
-        <div className="rounded-xl bg-[#ffffff] p-6">
-          <ProfileForm defaultValues={defaultValues} />
-        </div>
+      <section className="rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-6 text-lg font-semibold text-[#111827]">Profile</h2>
+        <ProfileForm defaultValues={defaultValues} />
       </section>
 
-      {/* Section 2 — Integrations */}
-      <section className="rounded-2xl bg-[#f0ecf6] p-6 md:p-8">
-        <h2 className="font-heading text-xl font-semibold text-[#32323b] mb-6">
+      <section className="mt-8 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm md:p-8">
+        <h2 className="mb-6 text-lg font-semibold text-[#111827]">
           Integrations
         </h2>
         <GoogleCalendarSection isConnected={googleConnected} />

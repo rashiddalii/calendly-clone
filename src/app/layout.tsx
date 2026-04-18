@@ -24,11 +24,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Fluid — Scheduling, reimagined",
-    template: "%s · Fluid",
+    default: "Fluid | Scheduling, Reimagined",
+    template: "%s | Fluid",
   },
   description:
-    "A serene, sophisticated scheduling experience. Share your availability, book meetings, sync with Google Calendar — all in a design that treats your time as an art object.",
+    "A serene, sophisticated scheduling experience. Share your availability, book meetings, sync with Google Calendar. All in a design that treats your time as an art object.",
   applicationName: "Fluid",
   keywords: [
     "scheduling",
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     type: "website",
-    title: "Fluid — Scheduling, reimagined",
+    title: "Fluid | Scheduling, Reimagined",
     description:
       "Share your availability and book meetings with a design that makes time feel effortless.",
     siteName: "Fluid",
@@ -56,7 +56,10 @@ export default function RootLayout({
       lang="en"
       className={`${inter.variable} ${manrope.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-surface text-on-surface">
+      <body
+        className="min-h-full flex flex-col bg-surface text-on-surface"
+        suppressHydrationWarning
+      >
         {children}
         <Toaster richColors position="top-center" />
       </body>

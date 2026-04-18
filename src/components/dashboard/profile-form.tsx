@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { useState, useTransition } from "react"
 import { updateProfileAction } from "@/lib/actions/user"
 import { TIMEZONE_GROUPS, ALL_TIMEZONES } from "@/components/booking/timezone-picker"
@@ -16,6 +17,7 @@ interface ProfileFormProps {
 type FieldErrors = Partial<Record<"name" | "username" | "bio" | "timezone", string>>
 
 export function ProfileForm({ defaultValues }: ProfileFormProps) {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [values, setValues] = useState(defaultValues)
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
@@ -55,6 +57,7 @@ export function ProfileForm({ defaultValues }: ProfileFormProps) {
         }
       } else {
         setSuccess(true)
+        router.refresh()
       }
     })
   }

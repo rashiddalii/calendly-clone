@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth"
 import { listBookings } from "@/lib/services/booking"
 import { MeetingsClient } from "./meetings-client"
 import type { SerializedBooking } from "./meetings-client"
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header"
 
 export const metadata = { title: "Meetings — Fluid" }
 
@@ -46,15 +47,12 @@ export default async function MeetingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <header>
-        <h1 className="font-heading text-3xl font-semibold text-on-surface">
-          Meetings
-        </h1>
-        <p className="mt-1 text-sm text-on-surface-variant">
-          All your scheduled and past bookings in one place.
-        </p>
-      </header>
+    <div className="mx-auto max-w-4xl">
+      <DashboardPageHeader
+        title="Meetings"
+        showHelp
+        description="All your scheduled and past bookings in one place."
+      />
 
       <MeetingsClient
         upcoming={upcoming}

@@ -95,41 +95,37 @@ export function DateOverrideCalendar({
   }
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl bg-surface-lowest p-6">
+    <section className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
       <div>
-        <h2 className="font-heading text-xl font-semibold">Date overrides</h2>
-        <p className="mt-1 text-sm text-on-surface-variant">
+        <h2 className="text-xl font-semibold text-[#111827]">Date overrides</h2>
+        <p className="mt-1 text-sm text-[#6B7280]">
           Block a date, or replace your weekly hours for a specific day.
         </p>
       </div>
 
       {/* Add form */}
-      <div className="flex flex-col gap-3 rounded-lg bg-surface-low p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] p-4">
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-on-surface-variant">
-            Date
-          </label>
+          <label className="text-xs font-medium text-[#6B7280]">Date</label>
           <input
             type="date"
             min={minDate}
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="h-9 rounded-md border-0 bg-surface-lowest px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+            className="h-9 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] outline-none focus:border-[#006BFF] focus:ring-2 focus:ring-[#006BFF]/20"
           />
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-on-surface-variant">
-            Action
-          </label>
+          <label className="text-xs font-medium text-[#6B7280]">Action</label>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setMode("block")}
               className={`flex-1 rounded-md px-3 py-2 text-sm transition-colors ${
                 mode === "block"
-                  ? "bg-surface-lowest text-on-surface"
-                  : "text-on-surface-variant hover:bg-surface-lowest/50"
+                  ? "border border-[#006BFF] bg-white text-[#006BFF]"
+                  : "text-[#6B7280] hover:bg-white"
               }`}
             >
               <CalendarX className="mr-1.5 inline h-3.5 w-3.5" />
@@ -140,8 +136,8 @@ export function DateOverrideCalendar({
               onClick={() => setMode("custom")}
               className={`flex-1 rounded-md px-3 py-2 text-sm transition-colors ${
                 mode === "custom"
-                  ? "bg-surface-lowest text-on-surface"
-                  : "text-on-surface-variant hover:bg-surface-lowest/50"
+                  ? "border border-[#006BFF] bg-white text-[#006BFF]"
+                  : "text-[#6B7280] hover:bg-white"
               }`}
             >
               <Clock className="mr-1.5 inline h-3.5 w-3.5" />
@@ -157,15 +153,15 @@ export function DateOverrideCalendar({
               step={300}
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="h-9 flex-1 rounded-md border-0 bg-surface-lowest px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+              className="h-9 flex-1 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] outline-none focus:border-[#006BFF] focus:ring-2 focus:ring-[#006BFF]/20"
             />
-            <span className="text-sm text-on-surface-variant">–</span>
+            <span className="text-sm text-[#6B7280]">–</span>
             <input
               type="time"
               step={300}
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="h-9 flex-1 rounded-md border-0 bg-surface-lowest px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+              className="h-9 flex-1 rounded-md border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] outline-none focus:border-[#006BFF] focus:ring-2 focus:ring-[#006BFF]/20"
             />
           </div>
         )}
@@ -174,7 +170,7 @@ export function DateOverrideCalendar({
           type="button"
           onClick={addOverride}
           disabled={isPending || !date}
-          className="cta-gradient inline-flex h-9 items-center justify-center gap-1.5 rounded-md px-4 text-sm font-medium disabled:opacity-50"
+          className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-[#006BFF] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#005FDB] disabled:opacity-50"
         >
           <Plus className="h-3.5 w-3.5" />
           Add override
@@ -184,7 +180,7 @@ export function DateOverrideCalendar({
       {/* Existing list */}
       <div className="flex flex-col gap-2">
         {overrides.length === 0 ? (
-          <p className="py-8 text-center text-sm text-on-surface-variant">
+          <p className="py-8 text-center text-sm text-[#6B7280]">
             No overrides yet. Your weekly schedule applies to every day.
           </p>
         ) : (
@@ -194,13 +190,13 @@ export function DateOverrideCalendar({
             return (
               <div
                 key={o.id}
-                className="flex items-center justify-between gap-3 rounded-lg bg-surface-low px-4 py-3"
+                className="flex items-center justify-between gap-3 rounded-lg border border-[#E5E7EB] bg-[#F9FAFB] px-4 py-3"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-on-surface">
+                  <p className="truncate text-sm font-medium text-[#111827]">
                     {formatDateHuman(iso)}
                   </p>
-                  <p className="text-xs text-on-surface-variant">
+                  <p className="text-xs text-[#6B7280]">
                     {isBlock
                       ? "Blocked — no bookings accepted"
                       : `${o.startTime} – ${o.endTime}`}
@@ -211,7 +207,7 @@ export function DateOverrideCalendar({
                   onClick={() => removeOverride(iso)}
                   disabled={isPending}
                   aria-label="Remove override"
-                  className="rounded-md p-2 text-on-surface-variant transition-colors hover:bg-[color:var(--error)]/10 hover:text-[color:var(--error)] disabled:opacity-50"
+                  className="rounded-md p-2 text-[#6B7280] transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>

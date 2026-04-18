@@ -1,0 +1,13 @@
+{
+  "name": "local-domexception",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Maps the node-domexception entry point to globalThis.DOMException (Node 18+).",
+  "main": "index.cjs",
+  "exports": {
+    ".": {
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    }
+  }
+}
