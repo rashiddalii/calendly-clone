@@ -23,6 +23,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  verification: {
+    google: "nCAG5W9kTHnnWEUDWN3Ul4ZAMW5l494UtEAvKtoIwOA",
+  },
   title: {
     default: "Fluid | Scheduling, Reimagined",
     template: "%s | Fluid",
