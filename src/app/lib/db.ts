@@ -18,7 +18,6 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { neonConfig } from "@neondatabase/serverless";
 import { PrismaNeon } from "@prisma/adapter-neon";
-import ws from "ws";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -29,9 +28,9 @@ function createPrismaClient(): PrismaClient {
 
   if (process.env.VERCEL === "1") {
     // Neon's serverless WebSocket pool — transaction-safe, no TCP pool exhaustion.
-    // PrismaNeon accepts a PoolConfig and creates the pool internally.
-    // Node.js 18/20 lack a native WebSocket global so we supply the ws package.
-    neonConfig.webSocketConstructor = ws;
+    // Use require() so the ws module is not statically bundled into middleware.
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    neonConfig.webSocketConstructor = require("ws");
     return new PrismaClient({ adapter: new PrismaNeon({ connectionString: url }) });
   }
 

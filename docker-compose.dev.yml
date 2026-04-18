@@ -1,0 +1,4 @@
+# Backwards-compatible alias — identical to default `docker-compose.yml` (dev stack).
+
+include:
+  - path: ./docker-compose.yml

@@ -32,7 +32,7 @@ function extractInput(formData: FormData) {
     slug: String(formData.get("slug") ?? ""),
     description: String(formData.get("description") ?? ""),
     duration: coerceInt(formData.get("duration"), 30),
-    color: String(formData.get("color") ?? "#4a4bd7"),
+    color: String(formData.get("color") ?? "#006BFF"),
     bufferBefore: coerceInt(formData.get("bufferBefore"), 0),
     bufferAfter: coerceInt(formData.get("bufferAfter"), 0),
     minNotice: coerceInt(formData.get("minNotice"), 240),
