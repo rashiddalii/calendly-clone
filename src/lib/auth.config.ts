@@ -10,7 +10,9 @@ export const authConfig: NextAuthConfig = {
         nextUrl.pathname.startsWith("/dashboard") ||
         nextUrl.pathname.startsWith("/events") ||
         nextUrl.pathname.startsWith("/availability") ||
-        nextUrl.pathname.startsWith("/settings")
+        nextUrl.pathname.startsWith("/settings") ||
+        nextUrl.pathname.startsWith("/meetings") ||
+        nextUrl.pathname.startsWith("/onboarding")
       if (isOnDashboard) {
         if (isLoggedIn) return true
         return false // redirect to login

@@ -57,6 +57,7 @@ export async function cancelBookingAction(bookingId: string) {
   await cancelBooking(bookingId, session.user.id)
   revalidatePath("/meetings")
   revalidatePath("/dashboard")
+  revalidatePath("/events")
   return { status: "success" as const }
 }
 

@@ -5,10 +5,28 @@ import { emailSignInSchema } from "@/lib/validators/auth"
 
 export async function handleOAuthSignIn(formData: FormData) {
   const raw = formData.get("provider")
-  if (raw !== "google") {
-    throw new Error("Invalid provider")
+  if (raw === "google") {
+    await signIn("google", { redirectTo: "/events" })
+    return
   }
-  await signIn("google", { redirectTo: "/dashboard" })
+  if (raw === "microsoft-entra-id") {
+    await signIn("microsoft-entra-id", { redirectTo: "/events" })
+    return
+  }
+  throw new Error("Invalid provider")
+}
+
+export async function handleOAuthSignUp(formData: FormData) {
+  const raw = formData.get("provider")
+  if (raw === "google") {
+    await signIn("google", { redirectTo: "/onboarding" })
+    return
+  }
+  if (raw === "microsoft-entra-id") {
+    await signIn("microsoft-entra-id", { redirectTo: "/onboarding" })
+    return
+  }
+  throw new Error("Invalid provider")
 }
 
 export type EmailSignInState =

@@ -18,8 +18,11 @@ model User {
   image         String?
   username      String?   @unique
   timezone      String    @default("UTC")
-  bio           String?
-  createdAt     DateTime  @default(now())
+  bio                 String?
+  /// Survey answers + wizard state (usage, role, meeting location, etc.)
+  onboardingData      Json?
+  onboardingCompleted Boolean   @default(true)
+  createdAt           DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
   accounts      Account[]

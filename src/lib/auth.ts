@@ -1,5 +1,6 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
+import MicrosoftEntraId from "next-auth/providers/microsoft-entra-id"
 import Resend from "next-auth/providers/resend"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/db"
@@ -7,7 +8,6 @@ import { authConfig } from "@/lib/auth.config"
 import { generateUsername } from "@/lib/services/user"
 import { sendMagicLinkEmail } from "@/lib/services/email"
 
-/** Auth.js UntrustedHost: set AUTH_TRUST_HOST=true in .env, or we trust in development by default. */
 function isTrustHost(): boolean {
   const raw = (process.env.AUTH_TRUST_HOST ?? "").toLowerCase()
   if (raw === "false" || raw === "0" || raw === "no") return false
@@ -21,7 +21,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   trustHost: isTrustHost(),
   secret: process.env.AUTH_SECRET,
   adapter: PrismaAdapter(prisma),
-  session: { strategy: "database" },
+  // JWT strategy: sessions live in encrypted cookies, no DB lookup needed in middleware
+  session: { strategy: "jwt" },
   providers: [
     Google({
       authorization: {
@@ -38,6 +39,18 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         },
       },
     }),
+    ...(process.env.AUTH_MICROSOFT_ENTRA_ID_ID &&
+    process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET
+      ? [
+          MicrosoftEntraId({
+            clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
+            clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
+            ...(process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER
+              ? { issuer: process.env.AUTH_MICROSOFT_ENTRA_ID_ISSUER }
+              : {}),
+          }),
+        ]
+      : []),
     Resend({
       apiKey: process.env.RESEND_API_KEY,
       from: process.env.AUTH_RESEND_FROM ?? "noreply@example.com",
@@ -49,11 +62,38 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     ...authConfig.callbacks,
-    async session({ session, user }) {
-      if (user?.id) {
-        session.user.id = user.id
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+        token.username = (user as { username?: string | null }).username ?? null
+        if (user.name) token.name = user.name
+        if (user.email) token.email = user.email
+        if (user.image) token.picture = user.image
       }
-      session.user.username = (user as { username?: string | null }).username ?? null
+
+      // JWT sessions do not auto-refresh when the User row changes (e.g. Settings).
+      if (token.id) {
+        const row = await prisma.user.findUnique({
+          where: { id: token.id as string },
+          select: { username: true, name: true, image: true },
+        })
+        if (row) {
+          token.username = row.username ?? null
+          if (row.name != null) token.name = row.name
+          if (row.image != null) token.picture = row.image
+        }
+      }
+
+      return token
+    },
+    async session({ session, token }) {
+      if (token.id) {
+        session.user.id = token.id as string
+      }
+      session.user.username = (token.username as string | null) ?? null
+      if (token.picture) {
+        session.user.image = token.picture as string
+      }
       return session
     },
   },
@@ -67,11 +107,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           })
           await prisma.user.update({
             where: { id: user.id },
-            data: { username },
+            data: { username, onboardingCompleted: false },
           })
         } catch (err) {
-          // P2002 = unique constraint violation (race condition on username)
-          // Non-fatal: user can set username manually in settings
           const code = (err as { code?: string })?.code
           if (code !== "P2002") throw err
         }

@@ -69,6 +69,7 @@ export async function updateProfileAction(
   }
 
   revalidatePath("/settings")
+  revalidatePath("/events")
   return { status: "success" }
 }
 
