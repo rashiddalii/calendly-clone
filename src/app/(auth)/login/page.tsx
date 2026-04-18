@@ -264,40 +264,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </div>
         </div>
       </div>
-
-      <footer className="mt-auto border-t border-[#E5E7EB] px-4 py-5 sm:px-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 text-[13px] font-medium text-[#0F172A] sm:flex-row sm:items-center sm:justify-between">
-          <button
-            type="button"
-            className="cursor-default border-0 bg-transparent p-0 text-left text-[#0F172A] sm:text-center"
-          >
-            English
-          </button>
-          <nav
-            aria-label="Legal"
-            className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 sm:gap-x-5"
-          >
-            {[
-              ["Privacy Policy", "#"],
-              ["Legal", "#"],
-              ["Status", "#"],
-              ["Cookie Settings", "#"],
-              ["Your Privacy Choices", "#"],
-            ].map(([label, href]) => (
-              <a
-                key={label}
-                href={href}
-                className="whitespace-nowrap text-[#0F172A] no-underline hover:opacity-75"
-              >
-                {label}
-              </a>
-            ))}
-          </nav>
-          <p className="text-center text-[#0F172A] sm:text-right">
-            Copyright Fluid {year}
-          </p>
-        </div>
-      </footer>
     </div>
   )
 }

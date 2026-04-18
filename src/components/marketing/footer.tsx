@@ -1,14 +1,15 @@
 "use client";
 
+import Link from "next/link";
+
 export function Footer() {
   const year = new Date().getFullYear();
 
   const LEGAL_LINKS = [
-    "Privacy Policy",
-    "Legal",
-    "Status",
-    "Cookie Settings",
-    "Your Privacy Choices",
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+    { label: "Status", href: "#" },
+    { label: "Cookie Settings", href: "#" },
   ];
 
   return (
@@ -71,10 +72,10 @@ export function Footer() {
             flexWrap: "nowrap",
           }}
         >
-          {LEGAL_LINKS.map((item) => (
-            <a
-              key={item}
-              href="#"
+          {LEGAL_LINKS.map(({ label, href }) => (
+            <Link
+              key={label}
+              href={href}
               className="ff-link"
               style={{
                 fontFamily: "var(--font-inter), sans-serif",
@@ -85,8 +86,8 @@ export function Footer() {
                 whiteSpace: "nowrap",
               }}
             >
-              {item}
-            </a>
+              {label}
+            </Link>
           ))}
         </nav>
 

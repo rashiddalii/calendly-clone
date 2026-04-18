@@ -2,6 +2,7 @@
 
 import { useActionState, useId, useState } from "react"
 import Link from "next/link"
+import { ChevronDown } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -11,6 +12,48 @@ import {
   updateEventTypeAction,
   type FormState,
 } from "@/lib/actions/event-type"
+
+type SchedulingPreset = {
+  id: string
+  label: string
+  tagline: string
+  recommended?: boolean
+  values: { bufferBefore: number; bufferAfter: number; minNotice: number; maxDaysInFuture: number }
+  pills: string[]
+}
+
+const SCHEDULING_PRESETS: SchedulingPreset[] = [
+  {
+    id: "relaxed",
+    label: "Relaxed",
+    tagline: "No buffers, book anytime",
+    values: { bufferBefore: 0, bufferAfter: 0, minNotice: 0, maxDaysInFuture: 90 },
+    pills: ["No prep time", "Book anytime", "Up to 3 months"],
+  },
+  {
+    id: "standard",
+    label: "Standard",
+    tagline: "Balanced for most meetings",
+    recommended: true,
+    values: { bufferBefore: 10, bufferAfter: 10, minNotice: 240, maxDaysInFuture: 60 },
+    pills: ["10 min buffer", "4 hrs notice", "Up to 2 months"],
+  },
+  {
+    id: "strict",
+    label: "Strict",
+    tagline: "Protect your focus time",
+    values: { bufferBefore: 15, bufferAfter: 15, minNotice: 1440, maxDaysInFuture: 30 },
+    pills: ["15 min buffer", "24 hrs notice", "Up to 1 month"],
+  },
+]
+
+function minutesToHuman(minutes: number): string {
+  if (minutes === 0) return "None"
+  if (minutes < 60) return `${minutes} min`
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return m === 0 ? `${h} hr${h > 1 ? "s" : ""}` : `${h} hr ${m} min`
+}
 
 type InitialValues = {
   id?: string
@@ -46,6 +89,30 @@ export function EventTypeForm({
 }) {
   const id = useId()
   const [color, setColor] = useState(initial.color ?? "#006BFF")
+
+  const [bufferBefore, setBufferBefore] = useState(initial.bufferBefore ?? 10)
+  const [bufferAfter, setBufferAfter] = useState(initial.bufferAfter ?? 10)
+  const [minNotice, setMinNotice] = useState(initial.minNotice ?? 240)
+  const [maxDaysInFuture, setMaxDaysInFuture] = useState(initial.maxDaysInFuture ?? 60)
+  const [selectedPreset, setSelectedPreset] = useState<string | null>(() => {
+    const preset = SCHEDULING_PRESETS.find(
+      (p) =>
+        p.values.bufferBefore === (initial.bufferBefore ?? 10) &&
+        p.values.bufferAfter === (initial.bufferAfter ?? 10) &&
+        p.values.minNotice === (initial.minNotice ?? 240) &&
+        p.values.maxDaysInFuture === (initial.maxDaysInFuture ?? 60)
+    )
+    return preset?.id ?? null
+  })
+  const [showAdvanced, setShowAdvanced] = useState(false)
+
+  function applyPreset(preset: SchedulingPreset) {
+    setSelectedPreset(preset.id)
+    setBufferBefore(preset.values.bufferBefore)
+    setBufferAfter(preset.values.bufferAfter)
+    setMinNotice(preset.values.minNotice)
+    setMaxDaysInFuture(preset.values.maxDaysInFuture)
+  }
 
   const action =
     mode === "create"
@@ -174,81 +241,207 @@ export function EventTypeForm({
         <div>
           <h2 className="text-lg font-semibold text-[#111827]">Scheduling rules</h2>
           <p className="text-sm text-[#6B7280]">
-            Control how and when people can book.
+            Choose how much control you want over when people can book you.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="flex flex-col gap-2">
-            <Label
-              htmlFor={`${id}-bufferBefore`}
-              className="text-on-surface-variant"
+        {/* Preset cards */}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {SCHEDULING_PRESETS.map((preset) => {
+            const isSelected = selectedPreset === preset.id
+            return (
+              <button
+                key={preset.id}
+                type="button"
+                onClick={() => applyPreset(preset)}
+                className={cn(
+                  "relative flex flex-col gap-3 rounded-xl border-2 p-4 text-left transition-all",
+                  isSelected
+                    ? "border-[#006BFF] bg-[#EEF4FF]"
+                    : "border-[#E5E7EB] bg-white hover:border-[#006BFF]/40 hover:bg-[#F9FAFB]"
+                )}
+              >
+                {preset.recommended && (
+                  <span className="absolute right-3 top-3 rounded-full bg-[#006BFF] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+                    Recommended
+                  </span>
+                )}
+                <div>
+                  <p className={cn("text-sm font-semibold", isSelected ? "text-[#006BFF]" : "text-[#111827]")}>
+                    {preset.label}
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#6B7280]">{preset.tagline}</p>
+                </div>
+                <ul className="flex flex-col gap-1">
+                  {preset.pills.map((pill) => (
+                    <li
+                      key={pill}
+                      className={cn(
+                        "w-fit rounded-full px-2 py-0.5 text-[11px] font-medium",
+                        isSelected
+                          ? "bg-[#006BFF]/10 text-[#006BFF]"
+                          : "bg-[#F3F4F6] text-[#374151]"
+                      )}
+                    >
+                      {pill}
+                    </li>
+                  ))}
+                </ul>
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Custom badge shown when none of the presets match */}
+        {selectedPreset === null && (
+          <p className="text-xs text-[#6B7280]">
+            Custom settings applied.{" "}
+            <button
+              type="button"
+              className="text-[#006BFF] underline underline-offset-2"
+              onClick={() => setShowAdvanced(true)}
             >
-              Buffer before (minutes)
-            </Label>
-            <Input
-              id={`${id}-bufferBefore`}
-              name="bufferBefore"
-              type="number"
-              min={0}
-              max={240}
-              step={5}
-              defaultValue={initial.bufferBefore ?? 0}
+              View details
+            </button>
+          </p>
+        )}
+
+        {/* Hidden inputs — always submitted */}
+        <input type="hidden" name="bufferBefore" value={bufferBefore} />
+        <input type="hidden" name="bufferAfter" value={bufferAfter} />
+        <input type="hidden" name="minNotice" value={minNotice} />
+        <input type="hidden" name="maxDaysInFuture" value={maxDaysInFuture} />
+
+        {/* Advanced toggle */}
+        <div className="border-t border-[#F3F4F6] pt-4">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="flex items-center gap-1.5 text-sm font-medium text-[#374151] hover:text-[#111827]"
+          >
+            <ChevronDown
+              className={cn(
+                "h-4 w-4 text-[#6B7280] transition-transform",
+                showAdvanced && "rotate-180"
+              )}
             />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label
-              htmlFor={`${id}-bufferAfter`}
-              className="text-on-surface-variant"
-            >
-              Buffer after (minutes)
-            </Label>
-            <Input
-              id={`${id}-bufferAfter`}
-              name="bufferAfter"
-              type="number"
-              min={0}
-              max={240}
-              step={5}
-              defaultValue={initial.bufferAfter ?? 0}
-            />
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label
-              htmlFor={`${id}-minNotice`}
-              className="text-on-surface-variant"
-            >
-              Minimum notice (minutes)
-            </Label>
-            <Input
-              id={`${id}-minNotice`}
-              name="minNotice"
-              type="number"
-              min={0}
-              max={10080}
-              step={15}
-              defaultValue={initial.minNotice ?? 240}
-            />
-            <p className="text-xs text-on-surface-variant">
-              Invitees can&apos;t book within this many minutes of the start time.
-            </p>
-          </div>
-          <div className="flex flex-col gap-2">
-            <Label
-              htmlFor={`${id}-maxDaysInFuture`}
-              className="text-on-surface-variant"
-            >
-              Max days in future
-            </Label>
-            <Input
-              id={`${id}-maxDaysInFuture`}
-              name="maxDaysInFuture"
-              type="number"
-              min={1}
-              max={365}
-              defaultValue={initial.maxDaysInFuture ?? 60}
-            />
-          </div>
+            Advanced settings
+          </button>
+
+          {showAdvanced && (
+            <div className="mt-4 grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* Buffer before */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${id}-bufferBefore`} className="text-[#111827]">
+                  Prep time before meeting
+                </Label>
+                <p className="text-xs text-[#6B7280]">
+                  Blocked before each meeting so you can prepare.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id={`${id}-bufferBefore`}
+                    type="number"
+                    min={0}
+                    max={240}
+                    step={5}
+                    value={bufferBefore}
+                    onChange={(e) => {
+                      setBufferBefore(Number(e.target.value))
+                      setSelectedPreset(null)
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-[#6B7280]">
+                    min&nbsp;·&nbsp;{minutesToHuman(bufferBefore)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Buffer after */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${id}-bufferAfter`} className="text-[#111827]">
+                  Recovery time after meeting
+                </Label>
+                <p className="text-xs text-[#6B7280]">
+                  Gap before the next meeting can start, so you can wrap up.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id={`${id}-bufferAfter`}
+                    type="number"
+                    min={0}
+                    max={240}
+                    step={5}
+                    value={bufferAfter}
+                    onChange={(e) => {
+                      setBufferAfter(Number(e.target.value))
+                      setSelectedPreset(null)
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-[#6B7280]">
+                    min&nbsp;·&nbsp;{minutesToHuman(bufferAfter)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Min notice */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${id}-minNotice`} className="text-[#111827]">
+                  Earliest someone can book
+                </Label>
+                <p className="text-xs text-[#6B7280]">
+                  How far in advance a booking must be made. Prevents last-minute surprises.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id={`${id}-minNotice`}
+                    type="number"
+                    min={0}
+                    max={10080}
+                    step={15}
+                    value={minNotice}
+                    onChange={(e) => {
+                      setMinNotice(Number(e.target.value))
+                      setSelectedPreset(null)
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-[#6B7280]">
+                    min&nbsp;·&nbsp;{minutesToHuman(minNotice)} from now
+                  </span>
+                </div>
+              </div>
+
+              {/* Max days */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor={`${id}-maxDaysInFuture`} className="text-[#111827]">
+                  How far ahead can people book?
+                </Label>
+                <p className="text-xs text-[#6B7280]">
+                  Invitees only see availability within this window.
+                </p>
+                <div className="flex items-center gap-2">
+                  <Input
+                    id={`${id}-maxDaysInFuture`}
+                    type="number"
+                    min={1}
+                    max={365}
+                    value={maxDaysInFuture}
+                    onChange={(e) => {
+                      setMaxDaysInFuture(Number(e.target.value))
+                      setSelectedPreset(null)
+                    }}
+                    className="w-24"
+                  />
+                  <span className="text-sm text-[#6B7280]">
+                    days&nbsp;·&nbsp;~{Math.round(maxDaysInFuture / 30)} month{Math.round(maxDaysInFuture / 30) !== 1 ? "s" : ""}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <label className="flex items-center gap-3 text-sm text-on-surface">
