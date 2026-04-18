@@ -29,8 +29,8 @@ type InitialValues = {
 const initialState: FormState = { status: "idle" }
 
 const PRESET_COLORS = [
-  "#4a4bd7",
-  "#7073ff",
+  "#006BFF",
+  "#6366f1",
   "#745479",
   "#a8364b",
   "#2f7d5b",
@@ -45,7 +45,7 @@ export function EventTypeForm({
   initial?: InitialValues
 }) {
   const id = useId()
-  const [color, setColor] = useState(initial.color ?? "#4a4bd7")
+  const [color, setColor] = useState(initial.color ?? "#006BFF")
 
   const action =
     mode === "create"
@@ -65,7 +65,7 @@ export function EventTypeForm({
       )}
 
       {/* Main details */}
-      <section className="flex flex-col gap-6 rounded-xl bg-surface-lowest p-6">
+      <section className="flex flex-col gap-6 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
         <div className="flex flex-col gap-2">
           <Label htmlFor={`${id}-title`} className="text-on-surface-variant">
             Title
@@ -158,7 +158,7 @@ export function EventTypeForm({
                   onClick={() => setColor(c)}
                   aria-label={`Pick ${c}`}
                   className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${
-                    color === c ? "ring-2 ring-offset-2 ring-offset-surface-lowest" : ""
+                    color === c ? "ring-2 ring-[#006BFF] ring-offset-2 ring-offset-white" : ""
                   }`}
                   style={{ background: c }}
                 />
@@ -170,10 +170,10 @@ export function EventTypeForm({
       </section>
 
       {/* Scheduling rules */}
-      <section className="flex flex-col gap-6 rounded-xl bg-surface-lowest p-6">
+      <section className="flex flex-col gap-6 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
         <div>
-          <h2 className="font-heading text-lg font-semibold">Scheduling rules</h2>
-          <p className="text-sm text-on-surface-variant">
+          <h2 className="text-lg font-semibold text-[#111827]">Scheduling rules</h2>
+          <p className="text-sm text-[#6B7280]">
             Control how and when people can book.
           </p>
         </div>
@@ -256,7 +256,7 @@ export function EventTypeForm({
             type="checkbox"
             name="isActive"
             defaultChecked={initial.isActive ?? true}
-            className="h-4 w-4 rounded accent-[color:var(--brand)]"
+            className="h-4 w-4 rounded accent-[#006BFF]"
           />
           Active — the booking link is publicly reachable
         </label>
@@ -272,7 +272,7 @@ export function EventTypeForm({
         <Button
           type="submit"
           disabled={isPending}
-          className="cta-gradient h-10 px-6 text-base"
+          className="h-10 bg-[#006BFF] px-6 text-base font-semibold text-white hover:bg-[#005FDB]"
         >
           {isPending
             ? mode === "create"

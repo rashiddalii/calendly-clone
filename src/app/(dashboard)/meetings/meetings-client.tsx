@@ -37,11 +37,11 @@ function EmptyState({
   message: string
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-xl brand-tint px-6 py-16 text-center">
-      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#ffffff]">
-        <Icon className="h-5 w-5 text-[#4a4bd7]" />
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-6 py-16 text-center shadow-sm">
+      <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#EBF5FF]">
+        <Icon className="h-5 w-5 text-[#006BFF]" />
       </div>
-      <p className="text-sm text-[#5f5e68]">{message}</p>
+      <p className="text-sm text-[#6B7280]">{message}</p>
     </div>
   )
 }
@@ -59,14 +59,23 @@ export function MeetingsClient({
 
   return (
     <Tabs defaultValue="upcoming">
-      <TabsList className="mb-6">
-        <TabsTrigger value="upcoming">
+      <TabsList variant="line" className="mb-6 w-full justify-start gap-8 bg-transparent p-0">
+        <TabsTrigger
+          value="upcoming"
+          className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+        >
           Upcoming {upcoming.length > 0 && `(${upcoming.length})`}
         </TabsTrigger>
-        <TabsTrigger value="past">
+        <TabsTrigger
+          value="past"
+          className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+        >
           Past {past.length > 0 && `(${past.length})`}
         </TabsTrigger>
-        <TabsTrigger value="cancelled">
+        <TabsTrigger
+          value="cancelled"
+          className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+        >
           Cancelled {cancelled.length > 0 && `(${cancelled.length})`}
         </TabsTrigger>
       </TabsList>

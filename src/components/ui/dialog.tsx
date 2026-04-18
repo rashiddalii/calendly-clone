@@ -80,6 +80,47 @@ function DialogContent({
   )
 }
 
+/** Right-edge panel (Calendly-style) — use inside `<Dialog open>...</Dialog>`. */
+function DrawerContent({
+  className,
+  children,
+  showCloseButton = true,
+  ...props
+}: DialogPrimitive.Popup.Props & {
+  showCloseButton?: boolean
+}) {
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Popup
+        data-slot="drawer-content"
+        className={cn(
+          "fixed inset-y-0 right-0 z-50 flex h-full w-full max-w-[min(100vw-1rem,28rem)] flex-col overflow-y-auto rounded-none rounded-l-xl border-l border-[#E5E7EB] bg-white p-0 text-sm text-[#111827] shadow-2xl outline-none duration-200 data-open:animate-in data-open:slide-in-from-right-4 data-closed:animate-out data-closed:slide-out-to-right-4",
+          className
+        )}
+        {...props}
+      >
+        {children}
+        {showCloseButton && (
+          <DialogPrimitive.Close
+            data-slot="drawer-close"
+            render={
+              <Button
+                variant="ghost"
+                className="absolute top-3 right-3 z-10"
+                size="icon-sm"
+              />
+            }
+          >
+            <XIcon />
+            <span className="sr-only">Close</span>
+          </DialogPrimitive.Close>
+        )}
+      </DialogPrimitive.Popup>
+    </DialogPortal>
+  )
+}
+
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -150,6 +191,7 @@ export {
   Dialog,
   DialogClose,
   DialogContent,
+  DrawerContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,

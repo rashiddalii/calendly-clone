@@ -52,21 +52,21 @@ export function GoogleCalendarSection({ isConnected }: GoogleCalendarSectionProp
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-xl bg-[#ffffff] p-6">
-      <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-col gap-4">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.75rem] bg-[#f6f2fb]">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#F3F4F6]">
             <GoogleIcon />
           </div>
           <div>
-            <p className="font-medium text-[#32323b]">Google Calendar</p>
-            <p className="mt-0.5 text-sm text-[#5f5e68]">
+            <p className="font-medium text-[#111827]">Google Calendar</p>
+            <p className="mt-0.5 text-sm text-[#6B7280]">
               Sync your calendar to block busy times and auto-create events
             </p>
           </div>
         </div>
 
-        <div className="flex shrink-0 items-center gap-3">
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
           {isConnected ? (
             <>
               <span className="rounded-full bg-[#dcfce7] px-2.5 py-0.5 text-xs font-medium text-[#166534]">
@@ -76,7 +76,7 @@ export function GoogleCalendarSection({ isConnected }: GoogleCalendarSectionProp
                 type="button"
                 onClick={handleDisconnect}
                 disabled={isDisconnecting}
-                className="rounded-[0.75rem] bg-[#eae7f1] px-4 py-2 text-sm font-medium text-[#32323b] transition-colors hover:bg-[#e4e1ed] disabled:opacity-50"
+                className="rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-[#374151] transition-colors hover:bg-[#F9FAFB] disabled:opacity-50"
               >
                 {isDisconnecting ? "Disconnecting…" : "Disconnect"}
               </button>
@@ -86,7 +86,7 @@ export function GoogleCalendarSection({ isConnected }: GoogleCalendarSectionProp
               <input type="hidden" name="provider" value="google" />
               <button
                 type="submit"
-                className="cta-gradient inline-flex h-9 items-center gap-2 rounded-[0.75rem] px-4 text-sm font-medium"
+                className="inline-flex h-9 items-center gap-2 rounded-lg bg-[#006BFF] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#005FDB]"
               >
                 Connect Google Calendar
               </button>

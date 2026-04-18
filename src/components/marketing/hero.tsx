@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-const CALENDAR_DAYS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+const CALENDAR_DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const APRIL_DAYS: (number | null)[][] = [
   [null, null, 1, 2, 3, 4, 5],
   [6, 7, 8, 9, 10, 11, 12],
@@ -9,78 +9,61 @@ const APRIL_DAYS: (number | null)[][] = [
   [20, 21, 22, 23, 24, 25, 26],
   [27, 28, 29, 30, null, null, null],
 ];
-const AVAILABLE_DATES = new Set([3, 7, 8, 9, 10, 14, 15, 16, 17, 22, 23, 28, 29]);
-const SELECTED_DATE = 15;
-const TIME_SLOTS = ["9:00 AM", "9:30 AM", "10:00 AM", "11:00 AM", "2:00 PM", "3:30 PM"];
-const SELECTED_SLOT = "10:00 AM";
+const AVAILABLE_DATES = new Set([7, 8, 9, 10, 14, 15, 16, 17, 21, 22, 23, 24, 28, 29, 30]);
+const SELECTED_DATE = 17;
+const TIME_SLOTS = ["1:00 pm", "2:30 pm", "4:00 pm"];
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+    </svg>
+  );
+}
 
 export function Hero() {
   return (
     <section
       style={{
-        backgroundColor: "#fcf8fe",
-        padding: "5.5rem 1.5rem 5rem",
+        backgroundColor: "#ffffff",
+        padding: "5rem 1.5rem 5rem",
         overflow: "hidden",
         position: "relative",
       }}
     >
-      {/* Ambient glow blobs */}
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          top: "-160px",
-          right: "-120px",
-          width: "680px",
-          height: "680px",
-          borderRadius: "9999px",
-          background: "radial-gradient(circle, rgba(112, 115, 255, 0.11) 0%, transparent 68%)",
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          bottom: "-80px",
-          left: "-140px",
-          width: "540px",
-          height: "540px",
-          borderRadius: "9999px",
-          background: "radial-gradient(circle, rgba(74, 75, 215, 0.07) 0%, transparent 68%)",
-          pointerEvents: "none",
-        }}
-      />
-
       <style>{`
-        .hero-primary:hover { filter: brightness(0.94); transform: translateY(-2px); box-shadow: 0 10px 32px rgba(74, 75, 215, 0.42) !important; }
-        .hero-primary { transition: filter 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease; }
-        .hero-secondary:hover { background-color: #ccc9f2 !important; transform: translateY(-1px); }
-        .hero-secondary { transition: background-color 0.16s ease, transform 0.16s ease; }
-        .hero-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; align-items: center; }
-        @media (min-width: 1024px) { .hero-grid { grid-template-columns: 1fr 1fr; } }
+        .hero-google-btn:hover { background-color: #0055CC !important; }
+        .hero-google-btn { transition: background-color 0.16s ease; }
+        .hero-email-link:hover { color: #006BFF !important; }
+        .hero-email-link { transition: color 0.14s ease; }
+        .fluid-hero-grid { display: grid; grid-template-columns: 1fr; gap: 4rem; align-items: center; }
+        @media (min-width: 1024px) { .fluid-hero-grid { grid-template-columns: 1fr 1fr; } }
+        .fluid-booking-card { display: none; }
+        @media (min-width: 1024px) { .fluid-booking-card { display: block; } }
       `}</style>
 
-      <div style={{ maxWidth: "1152px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+      <div style={{ maxWidth: "1200px", margin: "0 auto", position: "relative", zIndex: 1 }}>
+        <div className="fluid-hero-grid">
 
-        {/* Two-column layout on large screens */}
-        <div className="hero-grid">
           {/* Left: Copy */}
           <div>
-            {/* Badge */}
-            <div style={{ marginBottom: "1.75rem" }}>
+            {/* Badge pill */}
+            <div style={{ marginBottom: "1.5rem" }}>
               <span
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
                   gap: "0.5rem",
-                  padding: "0.375rem 0.875rem",
+                  padding: "0.375rem 1rem",
                   borderRadius: "9999px",
-                  backgroundColor: "#e2e0f9",
+                  backgroundColor: "#00213F",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "0.8125rem",
                   fontWeight: 600,
-                  color: "#4a4bd7",
+                  color: "#ffffff",
                   letterSpacing: "0.005em",
                 }}
               >
@@ -89,210 +72,220 @@ export function Hero() {
                     width: "6px",
                     height: "6px",
                     borderRadius: "9999px",
-                    backgroundColor: "#4a4bd7",
+                    backgroundColor: "#006BFF",
                     display: "inline-block",
                     flexShrink: 0,
                   }}
                 />
-                Scheduling, reimagined for serious work
+                The #1 scheduling tool
               </span>
             </div>
 
-            {/* Headline — two lines */}
+            {/* Headline */}
             <h1
               style={{
                 fontFamily: "var(--font-manrope), sans-serif",
                 fontWeight: 800,
-                fontSize: "clamp(2.25rem, 4.5vw, 3.625rem)",
-                lineHeight: "1.08",
-                color: "#32323b",
-                letterSpacing: "-0.035em",
+                fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                lineHeight: "1.06",
+                color: "#00213F",
+                letterSpacing: "-0.03em",
                 margin: "0 0 1.25rem",
               }}
             >
-              Scheduling,{" "}
-              <br />
-              <span
-                style={{
-                  backgroundImage: "linear-gradient(135deg, #4a4bd7 20%, #7073ff 80%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                reimagined.
-              </span>
+              Easy scheduling ahead
             </h1>
 
             {/* Subhead */}
             <p
               style={{
                 fontFamily: "var(--font-inter), sans-serif",
-                fontSize: "clamp(1rem, 1.8vw, 1.125rem)",
+                fontSize: "clamp(1rem, 1.6vw, 1.125rem)",
                 fontWeight: 400,
-                color: "#5f5e68",
-                lineHeight: "1.68",
-                maxWidth: "480px",
-                margin: "0 0 2.5rem",
+                color: "#666666",
+                lineHeight: "1.65",
+                maxWidth: "440px",
+                margin: "0 0 2.25rem",
               }}
             >
-              Fluid makes booking meetings feel effortless — for you and everyone you meet.
-              Share one link. Let availability speak for itself.
+              Join millions who book meetings without the back-and-forth. Share your link and let Fluid handle the rest.
             </p>
 
-            {/* CTAs */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "0.875rem", marginBottom: "2rem" }}>
+            {/* Sign up buttons */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: "360px" }}>
+              {/* Google sign up */}
               <Link
                 href="/login"
-                className="hero-primary cta-gradient"
+                className="hero-google-btn"
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.5rem",
+                  justifyContent: "center",
+                  gap: "0.625rem",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: 600,
-                  fontSize: "1rem",
+                  fontSize: "0.9375rem",
+                  color: "#ffffff",
                   textDecoration: "none",
-                  padding: "0.8125rem 1.75rem",
-                  borderRadius: "0.75rem",
-                  boxShadow: "0 4px 20px rgba(74, 75, 215, 0.32)",
+                  padding: "0.75rem 1.5rem",
+                  borderRadius: "0.375rem",
+                  backgroundColor: "#006BFF",
                 }}
               >
-                Get started — it&apos;s free
-                <ArrowRight size={16} strokeWidth={2.5} />
+                <GoogleIcon />
+                Sign up with Google
               </Link>
-              <a
-                href="#how-it-works"
-                className="hero-secondary"
+
+              {/* OR divider */}
+              <div
                 style={{
-                  display: "inline-flex",
+                  display: "flex",
                   alignItems: "center",
-                  gap: "0.5rem",
-                  fontFamily: "var(--font-inter), sans-serif",
-                  fontWeight: 600,
-                  fontSize: "1rem",
-                  color: "#4a4bd7",
-                  textDecoration: "none",
-                  padding: "0.8125rem 1.75rem",
-                  borderRadius: "0.75rem",
-                  backgroundColor: "#e2e0f9",
+                  gap: "0.75rem",
                 }}
               >
-                See a demo
-              </a>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }} />
+                <span
+                  style={{
+                    fontFamily: "var(--font-inter), sans-serif",
+                    fontSize: "0.8125rem",
+                    color: "#888888",
+                    fontWeight: 500,
+                  }}
+                >
+                  OR
+                </span>
+                <div style={{ flex: 1, height: "1px", backgroundColor: "#e5e7eb" }} />
+              </div>
+
+              {/* Email sign up */}
+              <Link
+                href="/login"
+                className="hero-email-link"
+                style={{
+                  display: "block",
+                  textAlign: "center",
+                  fontFamily: "var(--font-inter), sans-serif",
+                  fontWeight: 600,
+                  fontSize: "0.9375rem",
+                  color: "#006BFF",
+                  textDecoration: "none",
+                }}
+              >
+                Sign up free with email. No credit card required.
+              </Link>
             </div>
 
-            {/* Trust signals */}
+            {/* Trust line */}
             <p
               style={{
                 fontFamily: "var(--font-inter), sans-serif",
                 fontSize: "0.8125rem",
-                color: "#7b7984",
-                margin: 0,
+                color: "#888888",
+                margin: "1.5rem 0 0",
               }}
             >
-              No credit card required&nbsp;&nbsp;·&nbsp;&nbsp;2-minute setup&nbsp;&nbsp;·&nbsp;&nbsp;Free forever plan
+              No credit card&nbsp;&nbsp;·&nbsp;&nbsp;2 min setup&nbsp;&nbsp;·&nbsp;&nbsp;Free plan
             </p>
           </div>
 
-          {/* Right: Product mockup */}
-          <div style={{ position: "relative" }}>
-            {/* Glow behind card */}
-            <div
-              aria-hidden="true"
-              style={{
-                position: "absolute",
-                inset: "-40px",
-                borderRadius: "9999px",
-                background: "radial-gradient(circle at 60% 40%, rgba(74, 75, 215, 0.12) 0%, transparent 65%)",
-                filter: "blur(32px)",
-                pointerEvents: "none",
-                zIndex: 0,
-              }}
-            />
-
+          {/* Right: Booking card mockup */}
+          <div className="fluid-booking-card" style={{ position: "relative" }}>
             {/* Booking card */}
             <div
               style={{
-                position: "relative",
-                zIndex: 1,
                 backgroundColor: "#ffffff",
-                borderRadius: "1.25rem",
+                borderRadius: "1rem",
                 overflow: "hidden",
-                boxShadow: "0 24px 64px rgba(50, 50, 59, 0.12), 0 4px 16px rgba(50, 50, 59, 0.06)",
+                boxShadow: "0 4px 6px -1px rgba(0,0,0,0.07), 0 20px 50px -12px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.05)",
               }}
             >
-              {/* Browser chrome */}
+              {/* Browser chrome bar */}
               <div
                 style={{
-                  backgroundColor: "#f0ecf6",
-                  padding: "0.8125rem 1.125rem",
+                  backgroundColor: "#f5f5f7",
+                  padding: "0.6875rem 1rem",
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.875rem",
+                  gap: "0.75rem",
+                  borderBottom: "1px solid #e5e7eb",
                 }}
               >
-                <div style={{ display: "flex", gap: "0.375rem" }} aria-hidden="true">
-                  {["#f97386", "#fbbf24", "#34d399"].map((c, i) => (
-                    <div key={i} style={{ width: "10px", height: "10px", borderRadius: "9999px", backgroundColor: c }} />
+                <div style={{ display: "flex", gap: "0.3125rem" }} aria-hidden="true">
+                  {["#FF5F57", "#FFBD2E", "#28C840"].map((c, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "9999px",
+                        backgroundColor: c,
+                      }}
+                    />
                   ))}
                 </div>
                 <div
                   style={{
                     flex: 1,
-                    backgroundColor: "#e4e1ed",
-                    borderRadius: "0.3125rem",
-                    padding: "0.25rem 0.625rem",
+                    backgroundColor: "#e5e7eb",
+                    borderRadius: "0.25rem",
+                    padding: "0.1875rem 0.5rem",
                     fontSize: "0.6875rem",
                     fontFamily: "var(--font-inter), sans-serif",
-                    color: "#7b7984",
+                    color: "#888888",
                   }}
                 >
-                  fluid.app/alex-morgan/30min
+                  fluid.app/alex/30min
                 </div>
               </div>
 
-              {/* Card body */}
-              <div style={{ display: "grid", gridTemplateColumns: "200px 1fr", minHeight: "340px" }}>
-
+              {/* Card body: two-panel layout */}
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "190px 1fr",
+                  minHeight: "380px",
+                }}
+              >
                 {/* Left info panel */}
                 <div
                   style={{
-                    backgroundColor: "#f6f2fb",
+                    backgroundColor: "#ffffff",
                     padding: "1.5rem 1.125rem",
+                    borderRight: "1px solid #e5e7eb",
                     display: "flex",
                     flexDirection: "column",
-                    gap: "1.125rem",
+                    gap: "1rem",
                   }}
                 >
+                  {/* Avatar */}
                   <div
                     style={{
-                      width: "38px",
-                      height: "38px",
+                      width: "40px",
+                      height: "40px",
                       borderRadius: "9999px",
-                      background: "linear-gradient(135deg, #4a4bd7, #7073ff)",
+                      backgroundColor: "#006BFF",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
                       fontFamily: "var(--font-manrope), sans-serif",
                       fontWeight: 700,
                       fontSize: "1rem",
-                      color: "#fbf7ff",
+                      color: "#ffffff",
                     }}
-                    aria-label="Host avatar: Alex Morgan"
+                    aria-label="Host avatar"
                   >
                     A
                   </div>
+
                   <div>
                     <p
                       style={{
-                        fontSize: "0.625rem",
+                        fontSize: "0.6875rem",
                         fontFamily: "var(--font-inter), sans-serif",
-                        color: "#7b7984",
-                        fontWeight: 600,
+                        color: "#888888",
+                        fontWeight: 500,
                         margin: "0 0 0.25rem",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.07em",
                       }}
                     >
                       Alex Morgan
@@ -301,223 +294,251 @@ export function Hero() {
                       style={{
                         fontFamily: "var(--font-manrope), sans-serif",
                         fontWeight: 700,
-                        fontSize: "0.9375rem",
-                        color: "#32323b",
-                        margin: "0 0 0.875rem",
-                        lineHeight: 1.3,
+                        fontSize: "1rem",
+                        color: "#00213F",
+                        margin: "0 0 1rem",
+                        lineHeight: 1.25,
                       }}
                     >
-                      30 Minute Intro Call
+                      30 Minute Check-in
                     </h3>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.4375rem" }}>
-                      {[
-                        { dot: "#4a4bd7", label: "30 min" },
-                        { dot: "#7073ff", label: "Video call" },
-                        { dot: "#745479", label: "Apr 2026" },
-                      ].map(({ dot, label }) => (
-                        <div
-                          key={label}
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "0.4375rem",
-                            fontSize: "0.75rem",
-                            fontFamily: "var(--font-inter), sans-serif",
-                            color: "#5f5e68",
-                          }}
-                        >
-                          <span style={{ width: "6px", height: "6px", borderRadius: "9999px", backgroundColor: dot, flexShrink: 0 }} />
-                          {label}
-                        </div>
-                      ))}
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.4375rem",
+                          fontSize: "0.75rem",
+                          fontFamily: "var(--font-inter), sans-serif",
+                          color: "#666666",
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        30 min
+                      </div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.4375rem",
+                          fontSize: "0.75rem",
+                          fontFamily: "var(--font-inter), sans-serif",
+                          color: "#666666",
+                        }}
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                          <polygon points="23 7 16 12 23 17 23 7" />
+                          <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                        </svg>
+                        Video call
+                      </div>
                     </div>
                   </div>
+
+                  {/* Timezone selector */}
                   <div
                     style={{
                       marginTop: "auto",
-                      padding: "0.625rem 0.75rem",
-                      backgroundColor: "#e2e0f9",
-                      borderRadius: "0.75rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.375rem",
+                      fontSize: "0.6875rem",
+                      fontFamily: "var(--font-inter), sans-serif",
+                      color: "#666666",
                     }}
                   >
-                    <p
-                      style={{
-                        fontSize: "0.6875rem",
-                        fontFamily: "var(--font-inter), sans-serif",
-                        color: "#4a4bd7",
-                        fontWeight: 500,
-                        margin: 0,
-                        lineHeight: 1.5,
-                      }}
-                    >
-                      Select a date &amp; time
-                    </p>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="2" y1="12" x2="22" y2="12" />
+                      <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                    </svg>
+                    Eastern time - US &amp; Canada
                   </div>
                 </div>
 
-                {/* Right: Calendar + slots */}
-                <div style={{ backgroundColor: "#ffffff", display: "flex", flexDirection: "column" }}>
-                  {/* Calendar */}
-                  <div style={{ padding: "1.25rem 1.125rem 1rem", flex: 1 }}>
-                    <div
+                {/* Right: Calendar + time slots */}
+                <div
+                  style={{
+                    backgroundColor: "#ffffff",
+                    padding: "1.25rem 1rem",
+                    display: "flex",
+                    flexDirection: "column",
+                  }}
+                >
+                  {/* Month header */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    <span
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        marginBottom: "0.875rem",
+                        fontFamily: "var(--font-manrope), sans-serif",
+                        fontWeight: 700,
+                        fontSize: "0.875rem",
+                        color: "#00213F",
                       }}
                     >
-                      <span
+                      April 2026
+                    </span>
+                    <div style={{ display: "flex", gap: "0.25rem" }} aria-hidden="true">
+                      {[ChevronLeft, ChevronRight].map((Icon, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: "22px",
+                            height: "22px",
+                            borderRadius: "0.25rem",
+                            border: "1px solid #e5e7eb",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "#888888",
+                            cursor: "pointer",
+                          }}
+                        >
+                          <Icon size={11} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Day headers */}
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(7, 1fr)",
+                      gap: "0.125rem",
+                      marginBottom: "0.25rem",
+                    }}
+                    aria-hidden="true"
+                  >
+                    {CALENDAR_DAYS.map((d) => (
+                      <div
+                        key={d}
                         style={{
-                          fontFamily: "var(--font-manrope), sans-serif",
-                          fontWeight: 700,
-                          fontSize: "0.875rem",
-                          color: "#32323b",
+                          textAlign: "center",
+                          fontSize: "0.5625rem",
+                          fontFamily: "var(--font-inter), sans-serif",
+                          fontWeight: 600,
+                          color: "#888888",
+                          padding: "0.125rem 0",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.03em",
                         }}
                       >
-                        April 2026
-                      </span>
-                      <div style={{ display: "flex", gap: "0.25rem" }} aria-hidden="true">
-                        {[ChevronLeft, ChevronRight].map((Icon, i) => (
-                          <div
-                            key={i}
-                            style={{
-                              width: "24px",
-                              height: "24px",
-                              borderRadius: "0.375rem",
-                              backgroundColor: "#f0ecf6",
-                              display: "flex",
-                              alignItems: "center",
-                              justifyContent: "center",
-                              color: "#5f5e68",
-                            }}
-                          >
-                            <Icon size={12} />
-                          </div>
-                        ))}
+                        {d}
                       </div>
-                    </div>
+                    ))}
+                  </div>
 
-                    {/* Day headers */}
-                    <div
-                      style={{
-                        display: "grid",
-                        gridTemplateColumns: "repeat(7, 1fr)",
-                        gap: "0.125rem",
-                        marginBottom: "0.25rem",
-                      }}
-                      aria-hidden="true"
-                    >
-                      {CALENDAR_DAYS.map((d) => (
-                        <div
-                          key={d}
-                          style={{
-                            textAlign: "center",
-                            fontSize: "0.5625rem",
-                            fontFamily: "var(--font-inter), sans-serif",
-                            fontWeight: 600,
-                            color: "#7b7984",
-                            padding: "0.1875rem 0",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.04em",
-                          }}
-                        >
-                          {d}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Calendar grid */}
-                    <div aria-label="April 2026 calendar" role="grid">
-                      {APRIL_DAYS.map((week, wi) => (
-                        <div
-                          key={wi}
-                          role="row"
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns: "repeat(7, 1fr)",
-                            gap: "0.125rem",
-                            marginBottom: "0.125rem",
-                          }}
-                        >
-                          {week.map((day, di) => {
-                            const isAvail = day !== null && AVAILABLE_DATES.has(day);
-                            const isSel = day === SELECTED_DATE;
-                            return (
-                              <div
-                                key={di}
-                                role="gridcell"
-                                aria-label={day ? `April ${day}${isAvail ? ", available" : ""}${isSel ? ", selected" : ""}` : undefined}
-                                style={{
-                                  textAlign: "center",
-                                  padding: "0.25rem 0",
-                                  borderRadius: "0.3125rem",
-                                  fontSize: "0.6875rem",
-                                  fontFamily: "var(--font-inter), sans-serif",
-                                  fontWeight: isSel ? 700 : isAvail ? 600 : 400,
-                                  color: isSel ? "#fbf7ff" : isAvail ? "#32323b" : day === null ? "transparent" : "#b3b0bc",
-                                  background: isSel
-                                    ? "linear-gradient(135deg, #4a4bd7, #7073ff)"
-                                    : isAvail
-                                    ? "#f0ecf6"
-                                    : "transparent",
-                                }}
-                              >
-                                {day ?? ""}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      ))}
-                    </div>
+                  {/* Calendar grid */}
+                  <div aria-label="April 2026 calendar" role="grid">
+                    {APRIL_DAYS.map((week, wi) => (
+                      <div
+                        key={wi}
+                        role="row"
+                        style={{
+                          display: "grid",
+                          gridTemplateColumns: "repeat(7, 1fr)",
+                          gap: "0.125rem",
+                          marginBottom: "0.125rem",
+                        }}
+                      >
+                        {week.map((day, di) => {
+                          const isAvail = day !== null && AVAILABLE_DATES.has(day);
+                          const isSel = day === SELECTED_DATE;
+                          return (
+                            <div
+                              key={di}
+                              role="gridcell"
+                              aria-label={
+                                day
+                                  ? `April ${day}${isAvail ? ", available" : ""}${isSel ? ", selected" : ""}`
+                                  : undefined
+                              }
+                              style={{
+                                textAlign: "center",
+                                padding: "0.25rem 0.125rem",
+                                borderRadius: "9999px",
+                                fontSize: "0.6875rem",
+                                fontFamily: "var(--font-inter), sans-serif",
+                                fontWeight: isSel ? 700 : isAvail ? 500 : 400,
+                                color: isSel
+                                  ? "#ffffff"
+                                  : isAvail
+                                  ? "#00213F"
+                                  : day === null
+                                  ? "transparent"
+                                  : "#cccccc",
+                                backgroundColor: isSel
+                                  ? "#006BFF"
+                                  : isAvail
+                                  ? "#EBF3FF"
+                                  : "transparent",
+                                cursor: isAvail ? "pointer" : "default",
+                              }}
+                            >
+                              {day ?? ""}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    ))}
                   </div>
 
                   {/* Time slots */}
                   <div
                     style={{
-                      backgroundColor: "#f6f2fb",
-                      padding: "1rem 1.125rem",
-                      borderTop: "1px solid rgba(179, 176, 188, 0.12)",
+                      marginTop: "auto",
+                      paddingTop: "0.875rem",
+                      borderTop: "1px solid #e5e7eb",
                     }}
                   >
                     <p
                       style={{
-                        fontFamily: "var(--font-manrope), sans-serif",
-                        fontWeight: 700,
-                        fontSize: "0.75rem",
-                        color: "#32323b",
-                        margin: "0 0 0.625rem",
+                        fontFamily: "var(--font-inter), sans-serif",
+                        fontWeight: 600,
+                        fontSize: "0.6875rem",
+                        color: "#888888",
+                        margin: "0 0 0.5rem",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.05em",
                       }}
                     >
-                      Tue, Apr 15
+                      Thu, Apr 17
                     </p>
                     <div
                       style={{
                         display: "flex",
-                        flexWrap: "wrap",
+                        flexDirection: "column",
                         gap: "0.375rem",
                       }}
                     >
-                      {TIME_SLOTS.map((slot) => {
-                        const isSel = slot === SELECTED_SLOT;
-                        return (
-                          <div
-                            key={slot}
-                            style={{
-                              padding: "0.3125rem 0.625rem",
-                              borderRadius: "0.5rem",
-                              fontFamily: "var(--font-inter), sans-serif",
-                              fontSize: "0.6875rem",
-                              fontWeight: 500,
-                              background: isSel ? "linear-gradient(135deg, #4a4bd7, #7073ff)" : "#ffffff",
-                              color: isSel ? "#fbf7ff" : "#32323b",
-                              boxShadow: isSel ? "0 2px 8px rgba(74, 75, 215, 0.28)" : "0 1px 3px rgba(50, 50, 59, 0.05)",
-                            }}
-                          >
-                            {slot}
-                          </div>
-                        );
-                      })}
+                      {TIME_SLOTS.map((slot, i) => (
+                        <div
+                          key={slot}
+                          style={{
+                            padding: "0.4375rem 0.75rem",
+                            borderRadius: "0.25rem",
+                            fontFamily: "var(--font-inter), sans-serif",
+                            fontSize: "0.75rem",
+                            fontWeight: 500,
+                            border: `1px solid ${i === 1 ? "#006BFF" : "#e5e7eb"}`,
+                            color: i === 1 ? "#ffffff" : "#00213F",
+                            backgroundColor: i === 1 ? "#006BFF" : "#ffffff",
+                            textAlign: "center",
+                          }}
+                        >
+                          {slot}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>

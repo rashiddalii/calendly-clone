@@ -11,9 +11,15 @@ export default function BookingLayout({
         <Link
           href="/"
           className="inline-flex items-center gap-2 font-heading text-lg font-bold text-on-surface"
+          style={{ textDecoration: "none" }}
         >
-          <span className="inline-block h-2 w-2 rounded-full bg-[color:var(--brand)]" />
-          Fluid
+          <span
+            className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg"
+            style={{ backgroundColor: "#1e3461" }}
+          >
+            <img src="/logo-fluid-icon.svg" alt="" width={20} height={20} style={{ objectFit: "contain" }} />
+          </span>
+          <span style={{ color: "#006BFF" }}>Fluid</span>
         </Link>
       </header>
       <main className="flex flex-1 flex-col items-center px-4 pb-16">

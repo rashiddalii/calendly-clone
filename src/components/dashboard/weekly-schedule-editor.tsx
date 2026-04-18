@@ -121,11 +121,11 @@ export function WeeklyScheduleEditor({
   }
 
   return (
-    <section className="flex flex-col gap-4 rounded-xl bg-surface-lowest p-6">
+    <section className="flex flex-col gap-4 rounded-xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="font-heading text-xl font-semibold">Weekly hours</h2>
-          <p className="mt-1 text-sm text-on-surface-variant">
+          <h2 className="text-xl font-semibold text-[#111827]">Weekly hours</h2>
+          <p className="mt-1 text-sm text-[#6B7280]">
             Set when you&apos;re regularly available each week.
           </p>
         </div>
@@ -133,7 +133,7 @@ export function WeeklyScheduleEditor({
           type="button"
           onClick={save}
           disabled={isPending}
-          className="cta-gradient inline-flex h-9 items-center rounded-md px-4 text-sm font-medium disabled:opacity-60"
+          className="inline-flex h-9 items-center rounded-lg bg-[#006BFF] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#005FDB] disabled:opacity-60"
         >
           {isPending ? "Saving…" : "Save"}
         </button>
@@ -152,12 +152,12 @@ export function WeeklyScheduleEditor({
                   type="checkbox"
                   checked={cfg.enabled}
                   onChange={() => toggleDay(day)}
-                  className="h-4 w-4 rounded accent-[color:var(--brand)]"
+                  className="h-4 w-4 rounded accent-[#006BFF]"
                   id={`day-${day}`}
                 />
                 <label
                   htmlFor={`day-${day}`}
-                  className="text-sm font-medium text-on-surface"
+                  className="text-sm font-medium text-[#111827]"
                 >
                   {DAY_NAMES[day]}
                 </label>
@@ -174,9 +174,9 @@ export function WeeklyScheduleEditor({
                         onChange={(e) =>
                           updateSlot(day, i, "startTime", e.target.value)
                         }
-                        className="h-9 rounded-md border-0 bg-surface-high px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+                        className="h-9 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-3 text-sm text-[#111827] outline-none focus:border-[#006BFF] focus:ring-2 focus:ring-[#006BFF]/20"
                       />
-                      <span className="text-sm text-on-surface-variant">–</span>
+                      <span className="text-sm text-[#6B7280]">–</span>
                       <input
                         type="time"
                         value={slot.endTime}
@@ -184,22 +184,20 @@ export function WeeklyScheduleEditor({
                         onChange={(e) =>
                           updateSlot(day, i, "endTime", e.target.value)
                         }
-                        className="h-9 rounded-md border-0 bg-surface-high px-3 text-sm text-on-surface outline-none focus:ring-2 focus:ring-[color:var(--brand)]/30"
+                        className="h-9 rounded-md border border-[#E5E7EB] bg-[#F9FAFB] px-3 text-sm text-[#111827] outline-none focus:border-[#006BFF] focus:ring-2 focus:ring-[#006BFF]/20"
                       />
                       <button
                         type="button"
                         onClick={() => removeSlot(day, i)}
                         aria-label="Remove interval"
-                        className="rounded-md p-2 text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface"
+                        className="rounded-md p-2 text-[#6B7280] transition-colors hover:bg-[#F3F4F6] hover:text-[#111827]"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   ))
                 ) : (
-                  <p className="py-2 text-sm text-on-surface-variant">
-                    Unavailable
-                  </p>
+                  <p className="py-2 text-sm text-[#6B7280]">Unavailable</p>
                 )}
 
                 {cfg.enabled && (
@@ -207,7 +205,7 @@ export function WeeklyScheduleEditor({
                     <button
                       type="button"
                       onClick={() => addSlot(day)}
-                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[color:var(--brand)] transition-colors hover:bg-surface-low"
+                      className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-[#006BFF] transition-colors hover:bg-[#EBF5FF]"
                     >
                       <Plus className="h-3 w-3" />
                       Add interval
@@ -216,7 +214,7 @@ export function WeeklyScheduleEditor({
                       <button
                         type="button"
                         onClick={() => copyToWeekdays(day)}
-                        className="rounded-md px-2 py-1 text-xs font-medium text-on-surface-variant transition-colors hover:bg-surface-low hover:text-on-surface"
+                        className="rounded-md px-2 py-1 text-xs font-medium text-[#6B7280] transition-colors hover:bg-[#F3F4F6] hover:text-[#111827]"
                       >
                         Copy to weekdays
                       </button>
