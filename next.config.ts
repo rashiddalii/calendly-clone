@@ -1,12 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "6mb",
+    },
+  },
+
   // Prevent Node.js-only DB packages from being bundled into middleware
   serverExternalPackages: [
     "ws",
     "@prisma/adapter-neon",
     "@prisma/adapter-pg",
     "@neondatabase/serverless",
+    "@vercel/blob",
   ],
 
   // Avoid "Blocked cross-origin request" in dev when mixing localhost and 127.0.0.1
@@ -31,6 +40,11 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
+      },
+      // Vercel Blob (avatar + logo uploads)
+      {
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
       },
     ],
   },

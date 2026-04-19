@@ -19,18 +19,35 @@ model User {
   username      String?   @unique
   timezone      String    @default("UTC")
   bio                 String?
+
+  // Preferences (Account → Profile)
+  language   String  @default("en-US")
+  dateFormat String  @default("MM/DD/YYYY")
+  timeFormat String  @default("12h")
+  country    String?
+
+  // Branding (Account → Branding)
+  logoUrl        String?
+  useAppBranding Boolean @default(true)
+
+  // bcrypt hash; null for OAuth/magic-link only users
+  password            String?
+
   /// Survey answers + wizard state (usage, role, meeting location, etc.)
   onboardingData      Json?
   onboardingCompleted Boolean   @default(true)
   createdAt           DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  eventTypes    EventType[]
-  availability  Availability[]
-  dateOverrides DateOverride[]
-  bookings      Booking[]      @relation("HostBookings")
+  accounts                Account[]
+  sessions                Session[]
+  eventTypes              EventType[]
+  availability            Availability[]
+  dateOverrides           DateOverride[]
+  bookings                Booking[]      @relation("HostBookings")
+  integrations            Integration[]
+  emailVerificationTokens EmailVerificationToken[]
+  passwordResetTokens     PasswordResetToken[]
 
   @@index([username])
   @@index([email])
@@ -81,6 +98,9 @@ model EventType {
   duration    Int
   color       String  @default("#6366f1")
   isActive    Boolean @default(true)
+
+  location        String  @default("google_meet")
+  locationAddress String?
 
   bufferBefore    Int @default(0)
   bufferAfter     Int @default(0)
@@ -139,12 +159,20 @@ model Booking {
   bookerName     String
   bookerEmail    String
   bookerNotes    String?
+  bookerPhone    String?
   bookerTimezone String @default("UTC")
 
   startTime DateTime
   endTime   DateTime
 
   calendarEventId String?
+  meetingUrl      String?
+  meetingId       String?
+  meetingPassword String?
+  meetingProvider String?
+
+  icalUid      String? @unique
+  icalSequence Int     @default(0)
 
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -159,8 +187,73 @@ model Booking {
   @@index([startTime])
 }
 
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model EmailSuppression {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  reason       String
+  suppressedAt DateTime @default(now())
+
+  @@index([email])
+}
+
 enum BookingStatus {
   CONFIRMED
   CANCELLED
   COMPLETED
+}
+
+enum IntegrationProvider {
+  ZOOM
+  MICROSOFT
+}
+
+model Integration {
+  id                String              @id @default(cuid())
+  userId            String
+  provider          IntegrationProvider
+  providerAccountId String
+  accessToken       String              @db.Text
+  refreshToken      String?             @db.Text
+  expiresAt         DateTime?
+  scope             String?
+  accountEmail      String?
+  lastVerifiedAt    DateTime?
+  lastError         String?
+  lastErrorAt       DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, provider])
+  @@index([userId])
 }

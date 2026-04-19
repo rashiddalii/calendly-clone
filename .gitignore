@@ -44,3 +44,15 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# local dev image uploads (use Vercel Blob in production)
+/public/uploads
+
+# graphify — local knowledge graph tool (generated, never commit)
+graphify-out/
+src/graphify-out/
+.graphify_*
+.graphify_python/
+
+# Claude Code local settings (per-developer overrides)
+.claude/settings.local.json

@@ -57,6 +57,7 @@ src/
 - All database queries go through service files in `src/lib/services/`, never directly in components.
 - Validate ALL inputs with Zod schemas from `src/lib/validators/`.
 - Handle errors with try/catch and return typed responses, never throw unhandled.
+- **STRICT: NEVER write em dashes (—) anywhere in user-facing text.** This covers UI labels, body copy, page titles, metadata titles, placeholder text, tooltips, and error messages. Use a colon, comma, period, or reword. Examples: "Active: booking link" not "Active — booking link"; "Settings | Fluid" not "Settings — Fluid".
 
 ### Naming
 - Files: kebab-case (`event-type-card.tsx`)
@@ -70,6 +71,8 @@ src/
 - Use shadcn/ui components for all form elements, dialogs, dropdowns, etc.
 - Mobile-first responsive design (sm → md → lg breakpoints).
 - Consistent spacing: use 4px grid (p-1, p-2, p-4, p-6, p-8).
+- ALL clickable elements (button, [role="button"], interactive divs/cards) MUST have `cursor-pointer` class. No exceptions.
+- NEVER use em dashes (—) anywhere in user-facing text (see General rules above).
 
 ### Database
 - Always use Prisma transactions for multi-step operations.
