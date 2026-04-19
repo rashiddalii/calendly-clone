@@ -1,14 +1,28 @@
-import { redirect } from "next/navigation"
+import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { msOAuthUrl } from "@/lib/services/teams"
+import { APP_URL } from "@/lib/brand"
 
 export async function GET() {
   const session = await auth()
-  if (!session?.user?.id) redirect("/login")
-
-  if (!process.env.MICROSOFT_CLIENT_ID) {
-    redirect("/integrations?error=teams_not_configured")
+  if (!session?.user?.id) {
+    return NextResponse.redirect(new URL("/login", APP_URL))
   }
 
-  redirect(msOAuthUrl())
+  if (!process.env.MICROSOFT_CLIENT_ID) {
+    return NextResponse.redirect(
+      new URL("/integrations?error=teams_not_configured", APP_URL),
+    )
+  }
+
+  const state = crypto.randomUUID()
+  const response = NextResponse.redirect(msOAuthUrl(state))
+  response.cookies.set("teams_oauth_state", state, {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 600,
+    path: "/",
+    secure: process.env.NODE_ENV === "production",
+  })
+  return response
 }

@@ -193,7 +193,7 @@ export async function isTeamsConnected(userId: string): Promise<boolean> {
 }
 
 /** Build the Microsoft OAuth authorization URL. */
-export function msOAuthUrl(): string {
+export function msOAuthUrl(state: string): string {
   const clientId = process.env.MICROSOFT_CLIENT_ID ?? ""
   const redirectUri = `${APP_URL}/api/teams/callback`
   const params = new URLSearchParams({
@@ -203,6 +203,7 @@ export function msOAuthUrl(): string {
     scope:
       "Calendars.ReadWrite OnlineMeetings.ReadWrite offline_access User.Read",
     response_mode: "query",
+    state,
   })
   return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${params}`
 }

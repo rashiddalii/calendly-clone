@@ -14,10 +14,18 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = request.nextUrl
   const code = searchParams.get("code")
+  const state = searchParams.get("state")
   const error = searchParams.get("error")
 
   if (error || !code) {
     return NextResponse.redirect(new URL("/integrations?error=zoom_denied", APP_URL))
+  }
+
+  const expectedState = request.cookies.get("zoom_oauth_state")?.value
+  if (!state || !expectedState || state !== expectedState) {
+    return NextResponse.redirect(
+      new URL("/integrations?error=zoom_invalid_state", APP_URL),
+    )
   }
 
   const clientId = process.env.ZOOM_CLIENT_ID
@@ -98,5 +106,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  return NextResponse.redirect(new URL("/integrations?connected=zoom", APP_URL))
+  const successResponse = NextResponse.redirect(
+    new URL("/integrations?connected=zoom", APP_URL),
+  )
+  successResponse.cookies.delete("zoom_oauth_state")
+  return successResponse
 }

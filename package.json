@@ -8,7 +8,7 @@
   "scripts": {
     "dev": "next dev",
     "dev:docker": "node scripts/next-dev-watch-env.mjs",
-    "build": "next build",
+    "build": "prisma migrate deploy && next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "eslint",

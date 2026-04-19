@@ -165,13 +165,14 @@ export async function isZoomConnected(userId: string): Promise<boolean> {
 }
 
 /** Build the Zoom OAuth authorization URL. */
-export function zoomOAuthUrl(): string {
+export function zoomOAuthUrl(state: string): string {
   const clientId = process.env.ZOOM_CLIENT_ID ?? ""
   const redirectUri = `${APP_URL}/api/zoom/callback`
   const params = new URLSearchParams({
     response_type: "code",
     client_id: clientId,
     redirect_uri: redirectUri,
+    state,
   })
   return `https://zoom.us/oauth/authorize?${params}`
 }

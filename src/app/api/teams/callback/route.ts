@@ -14,10 +14,18 @@ export async function GET(request: NextRequest) {
 
   const { searchParams } = request.nextUrl
   const code = searchParams.get("code")
+  const state = searchParams.get("state")
   const error = searchParams.get("error")
 
   if (error || !code) {
     return NextResponse.redirect(new URL("/integrations?error=teams_denied", APP_URL))
+  }
+
+  const expectedState = request.cookies.get("teams_oauth_state")?.value
+  if (!state || !expectedState || state !== expectedState) {
+    return NextResponse.redirect(
+      new URL("/integrations?error=teams_invalid_state", APP_URL),
+    )
   }
 
   const clientId = process.env.MICROSOFT_CLIENT_ID
@@ -110,9 +118,11 @@ export async function GET(request: NextRequest) {
     })
 
     if (isPersonal) {
-      return NextResponse.redirect(
+      const personalResponse = NextResponse.redirect(
         new URL("/integrations?connected=teams&warning=personal_account", APP_URL),
       )
+      personalResponse.cookies.delete("teams_oauth_state")
+      return personalResponse
     }
   } catch (err) {
     console.error("[teams/callback] error", err)
@@ -121,5 +131,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  return NextResponse.redirect(new URL("/integrations?connected=teams", APP_URL))
+  const successResponse = NextResponse.redirect(
+    new URL("/integrations?connected=teams", APP_URL),
+  )
+  successResponse.cookies.delete("teams_oauth_state")
+  return successResponse
 }
