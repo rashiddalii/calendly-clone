@@ -1,4 +1,6 @@
 import { notFound } from "next/navigation"
+import { auth } from "@/lib/auth"
+import { systemFromAddress } from "@/lib/brand"
 import { getPublicEventType } from "@/lib/services/event-type"
 import { BookingFlow } from "@/components/booking/booking-flow"
 import type { PublicEventTypeView } from "@/types"
@@ -22,7 +24,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function EventBookingPage({ params }: PageProps) {
   const { username, eventSlug } = await params
-  const raw = await getPublicEventType(username, eventSlug)
+  const [raw, session] = await Promise.all([
+    getPublicEventType(username, eventSlug),
+    auth(),
+  ])
 
   if (!raw) notFound()
 
@@ -33,17 +38,30 @@ export default async function EventBookingPage({ params }: PageProps) {
     description: raw.description,
     duration: raw.duration,
     color: raw.color,
+    location: raw.location,
+    locationAddress: raw.locationAddress,
     host: {
       name: raw.user.name,
       username: raw.user.username,
       bio: raw.user.bio,
       image: raw.user.image,
       timezone: raw.user.timezone,
+      dateFormat: raw.user.dateFormat,
+      timeFormat: raw.user.timeFormat,
+      logoUrl: raw.user.logoUrl,
+      useAppBranding: raw.user.useAppBranding,
     },
   }
 
   // raw.user.id is available from getPublicEventType (includes user.id)
   const hostId = raw.user.id
 
-  return <BookingFlow eventType={eventType} hostId={hostId} />
+  return (
+    <BookingFlow
+      eventType={eventType}
+      hostId={hostId}
+      isAuthenticated={Boolean(session?.user?.id)}
+      invitationSearchFrom={systemFromAddress()}
+    />
+  )
 }

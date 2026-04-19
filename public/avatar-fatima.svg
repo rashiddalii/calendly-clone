@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <clipPath id="c"><circle cx="50" cy="50" r="50"/></clipPath>
+  </defs>
+
+  <!-- bg -->
+  <circle cx="50" cy="50" r="50" fill="#e8c9a8"/>
+
+  <!-- hair back layer -->
+  <ellipse cx="50" cy="30" rx="23" ry="24" fill="#2a1506"/>
+
+  <!-- neck -->
+  <rect x="43" y="57" width="14" height="14" rx="2" fill="#d4956a"/>
+
+  <!-- face -->
+  <ellipse cx="50" cy="42" rx="19" ry="21" fill="#d4956a"/>
+
+  <!-- hair top + sides (over face edges) -->
+  <ellipse cx="50" cy="22" rx="23" ry="16" fill="#2a1506"/>
+  <ellipse cx="30" cy="38" rx="10" ry="17" fill="#2a1506"/>
+  <ellipse cx="70" cy="38" rx="10" ry="17" fill="#2a1506"/>
+
+  <!-- ears -->
+  <ellipse cx="30.5" cy="43" rx="4" ry="5" fill="#c4865e"/>
+  <ellipse cx="69.5" cy="43" rx="4" ry="5" fill="#c4865e"/>
+
+  <!-- eyebrows -->
+  <path d="M39 36 Q43 33 47 35" stroke="#2a1506" stroke-width="2" fill="none" stroke-linecap="round"/>
+  <path d="M53 35 Q57 33 61 36" stroke="#2a1506" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+  <!-- eyes -->
+  <ellipse cx="43" cy="41" rx="3.5" ry="4" fill="#fff"/>
+  <ellipse cx="57" cy="41" rx="3.5" ry="4" fill="#fff"/>
+  <ellipse cx="43" cy="42" rx="2.5" ry="3" fill="#3d1f0d"/>
+  <ellipse cx="57" cy="42" rx="2.5" ry="3" fill="#3d1f0d"/>
+  <ellipse cx="44" cy="41" rx="1" ry="1" fill="#fff"/>
+  <ellipse cx="58" cy="41" rx="1" ry="1" fill="#fff"/>
+
+  <!-- nose -->
+  <path d="M48 46 Q50 50 52 46" stroke="#b87050" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+  <!-- lips -->
+  <path d="M44 53 Q50 57.5 56 53" stroke="#b86050" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+  <path d="M44 53 Q50 51 56 53" stroke="#c07060" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+
+  <!-- shirt / shoulders -->
+  <path d="M5 100 Q10 74 28 70 L50 74 L72 70 Q90 74 95 100Z" fill="#2D8CFF" clip-path="url(#c)"/>
+
+  <!-- shirt collar -->
+  <path d="M40 70 Q50 78 60 70" fill="#1a6fdb" clip-path="url(#c)"/>
+</svg>

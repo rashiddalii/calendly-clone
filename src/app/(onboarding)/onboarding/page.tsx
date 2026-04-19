@@ -10,16 +10,21 @@ export default async function OnboardingStep1Page() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { onboardingCompleted: true },
+    select: { onboardingCompleted: true, onboardingData: true },
   })
   if (user?.onboardingCompleted) redirect("/events")
 
+  const data = (user?.onboardingData ?? {}) as Record<string, unknown>
   const firstName = session.user.name?.split(" ")[0] ?? "there"
 
   return (
     <OnboardingShell step={1}>
       <div className="mx-auto w-full max-w-2xl">
-        <WizardStep1 firstName={firstName} />
+        <WizardStep1
+          firstName={firstName}
+          initialUsage={(data.usageMode as "solo" | "team") ?? null}
+          initialGoals={(data.helpGoals as string[]) ?? []}
+        />
       </div>
     </OnboardingShell>
   )

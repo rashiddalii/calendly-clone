@@ -189,7 +189,7 @@ export async function getAvailableSlots(
     prisma.booking.findMany({
       where: {
         hostId: userId,
-        status: "CONFIRMED",
+        status: { not: "CANCELLED" },
         startTime: { lt: rangeEndExclusiveUtc },
         endTime: { gt: rangeStartUtc },
       },

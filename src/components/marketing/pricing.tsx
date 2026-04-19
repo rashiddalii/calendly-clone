@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 
 interface Plan {
@@ -91,13 +91,35 @@ function CheckIcon() {
 
 export function Pricing() {
   const [yearly, setYearly] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.08 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
   return (
     <section
+      ref={ref}
       id="pricing"
       style={{
         backgroundColor: "#ffffff",
         padding: "6rem 1.5rem",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "scale(1)" : "scale(0.94)",
+        transition: "opacity 0.75s cubic-bezier(0.4,0,0.2,1), transform 0.75s cubic-bezier(0.4,0,0.2,1)",
       }}
     >
       <style>{`
@@ -122,7 +144,7 @@ export function Pricing() {
         .fluid-plan-cta-blue { transition: background-color 0.14s ease; }
         .fluid-plan-cta-outline:hover { background-color: #EBF3FF !important; }
         .fluid-plan-cta-outline { transition: background-color 0.14s ease; }
-        .fluid-toggle-btn { transition: background-color 0.14s ease, color 0.14s ease; }
+        .fluid-toggle-btn { min-height: 44px; transition: background-color 0.14s ease, color 0.14s ease; }
       `}</style>
 
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
@@ -158,6 +180,7 @@ export function Pricing() {
               onClick={() => setYearly(false)}
               style={{
                 padding: "0.4375rem 0.875rem",
+                minHeight: "44px",
                 borderRadius: "0.375rem",
                 fontFamily: "var(--font-inter), sans-serif",
                 fontWeight: 500,
@@ -176,6 +199,7 @@ export function Pricing() {
               onClick={() => setYearly(true)}
               style={{
                 padding: "0.4375rem 0.875rem",
+                minHeight: "44px",
                 borderRadius: "0.375rem",
                 fontFamily: "var(--font-inter), sans-serif",
                 fontWeight: 500,
@@ -293,8 +317,11 @@ export function Pricing() {
                 href="/login"
                 className={`fluid-plan-cta-${plan.ctaStyle}`}
                 style={{
-                  display: "block",
+                  display: "flex",
                   textAlign: "center",
+                  minHeight: "44px",
+                  alignItems: "center",
+                  justifyContent: "center",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: 600,
                   fontSize: "0.9375rem",

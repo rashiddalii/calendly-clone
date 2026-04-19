@@ -21,7 +21,7 @@ export function HowItWorks() {
     <section
       id="how-it-works"
       style={{
-        backgroundColor: "#fcf8fe",
+        backgroundColor: "#ffffff",
         padding: "6rem 1.5rem",
       }}
     >
@@ -35,7 +35,7 @@ export function HowItWorks() {
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: "0.8125rem",
               fontWeight: 600,
-              color: "#4a4bd7",
+              color: "#006bff",
               textTransform: "uppercase",
               letterSpacing: "0.09em",
               marginBottom: "0.875rem",
@@ -48,7 +48,7 @@ export function HowItWorks() {
               fontFamily: "var(--font-manrope), sans-serif",
               fontWeight: 700,
               fontSize: "clamp(1.75rem, 3vw, 2.375rem)",
-              color: "#32323b",
+              color: "#1c2b4b",
               letterSpacing: "-0.03em",
               margin: "0 0 0.875rem",
               lineHeight: "1.18",
@@ -60,7 +60,7 @@ export function HowItWorks() {
             style={{
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: "1.0625rem",
-              color: "#5f5e68",
+              color: "#4b5a6d",
               maxWidth: "380px",
               margin: "0 auto",
               lineHeight: "1.65",
@@ -114,7 +114,7 @@ export function HowItWorks() {
                   fontFamily: "var(--font-manrope), sans-serif",
                   fontWeight: 700,
                   fontSize: "1.25rem",
-                  color: "#32323b",
+                  color: "#1c2b4b",
                   margin: "0 0 0.75rem",
                   letterSpacing: "-0.02em",
                   position: "relative",
@@ -127,7 +127,7 @@ export function HowItWorks() {
                 style={{
                   fontFamily: "var(--font-inter), sans-serif",
                   fontSize: "0.9375rem",
-                  color: "#5f5e68",
+                  color: "#4b5a6d",
                   lineHeight: "1.65",
                   margin: 0,
                   position: "relative",

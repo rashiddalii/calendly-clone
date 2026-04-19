@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import Image from "next/image"
-import { Menu, X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { Menu, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogOverlay,
   DialogPortal,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
-import { SidebarNav } from "@/components/dashboard/sidebar-nav"
-import { CreateEventMenu } from "@/components/dashboard/create-event-menu"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/dialog";
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
+import { SidebarNav } from "@/components/dashboard/sidebar-nav";
+import { CreateEventMenu } from "@/components/dashboard/create-event-menu";
+import { cn } from "@/lib/utils";
 
 export function MobileNav() {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -26,7 +26,7 @@ export function MobileNav() {
         variant="ghost"
         size="icon"
         onClick={() => setOpen(true)}
-        className="md:hidden"
+        className="h-touch w-11 lg:hidden"
         aria-label="Open navigation menu"
       >
         <Menu className="h-5 w-5 text-[#374151]" />
@@ -37,10 +37,10 @@ export function MobileNav() {
           <DialogOverlay />
           <DialogPrimitive.Popup
             className={cn(
-              "fixed inset-y-0 left-0 z-50 flex h-full w-[min(100vw-3rem,280px)] flex-col border-r border-[#E5E7EB] bg-white p-4 shadow-xl",
+              "fixed inset-y-0 left-0 z-50 flex h-full w-[min(100vw-2rem,280px)] flex-col border-r border-[#E5E7EB] bg-white p-4 shadow-xl",
               "duration-200 outline-none",
               "data-open:animate-in data-open:slide-in-from-left",
-              "data-closed:animate-out data-closed:slide-out-to-left",
+              "data-closed:animate-out data-closed:slide-out-to-left"
             )}
           >
             <div className="mb-4 flex items-center justify-between gap-2">
@@ -72,7 +72,8 @@ export function MobileNav() {
                 render={
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
+                    className="h-touch w-11"
                     aria-label="Close menu"
                   />
                 }
@@ -91,5 +92,5 @@ export function MobileNav() {
         </DialogPortal>
       </Dialog>
     </>
-  )
+  );
 }

@@ -33,11 +33,24 @@ function extractInput(formData: FormData) {
     description: String(formData.get("description") ?? ""),
     duration: coerceInt(formData.get("duration"), 30),
     color: String(formData.get("color") ?? "#006BFF"),
+    location: String(formData.get("location") ?? "google_meet"),
+    locationAddress: String(formData.get("locationAddress") ?? "").trim() || undefined,
     bufferBefore: coerceInt(formData.get("bufferBefore"), 0),
     bufferAfter: coerceInt(formData.get("bufferAfter"), 0),
     minNotice: coerceInt(formData.get("minNotice"), 240),
     maxDaysInFuture: coerceInt(formData.get("maxDaysInFuture"), 60),
     isActive: formData.get("isActive") === "on" || formData.get("isActive") === "true",
+  }
+}
+
+function unavailableLocationError(location: string): FormState | null {
+  if (location !== "zoom") return null
+  return {
+    status: "error",
+    error: "Please fix the errors below",
+    fieldErrors: {
+      location: "Zoom is currently in progress and will be available soon.",
+    },
   }
 }
 
@@ -63,6 +76,9 @@ export async function createEventTypeAction(
       fieldErrors,
     }
   }
+
+  const locationError = unavailableLocationError(parsed.data.location)
+  if (locationError) return locationError
 
   try {
     await createEventType(session.user.id, parsed.data)
@@ -107,6 +123,9 @@ export async function updateEventTypeAction(
       fieldErrors,
     }
   }
+
+  const locationError = unavailableLocationError(parsed.data.location ?? "")
+  if (locationError) return locationError
 
   try {
     await updateEventType(session.user.id, parsed.data)

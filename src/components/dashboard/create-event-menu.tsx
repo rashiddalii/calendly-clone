@@ -66,19 +66,19 @@ export function CreateEventMenu({
               </span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem disabled className="flex flex-col gap-0.5 py-2 opacity-60">
+          <DropdownMenuItem disabled className="flex flex-col items-start gap-0.5 py-2 opacity-60">
             <span className="font-medium">Group</span>
             <span className="text-xs font-normal text-[#6B7280]">
               1 host → multiple invitees
             </span>
           </DropdownMenuItem>
-          <DropdownMenuItem disabled className="flex flex-col gap-0.5 py-2 opacity-60">
+          <DropdownMenuItem disabled className="flex flex-col items-start gap-0.5 py-2 opacity-60">
             <span className="font-medium">Round robin</span>
             <span className="text-xs font-normal text-[#6B7280]">
               Rotating hosts → 1 invitee
             </span>
           </DropdownMenuItem>
-          <DropdownMenuItem disabled className="flex flex-col gap-0.5 py-2 opacity-60">
+          <DropdownMenuItem disabled className="flex flex-col items-start gap-0.5 py-2 opacity-60">
             <span className="font-medium">Collective</span>
             <span className="text-xs font-normal text-[#6B7280]">
               Multiple hosts → 1 invitee

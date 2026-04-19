@@ -11,10 +11,30 @@ const slugSchema = z
     "Slug must be lowercase letters, numbers, and dashes only",
   )
 
-// Hex color like #4a4bd7 — 7 chars with leading #.
+// Hex color like #006bff — 7 chars with leading #.
 const hexColorSchema = z
   .string()
-  .regex(/^#[0-9a-fA-F]{6}$/, "Color must be a hex code like #4a4bd7")
+  .regex(/^#[0-9a-fA-F]{6}$/, "Color must be a hex code like #006bff")
+
+export const LOCATION_VALUES = [
+  "google_meet",
+  "zoom",
+  "teams",
+  "phone",
+  "in_person",
+  "other",
+] as const
+
+export type LocationValue = (typeof LOCATION_VALUES)[number]
+
+export const LOCATION_LABELS: Record<LocationValue, string> = {
+  google_meet: "Google Meet",
+  zoom: "Zoom",
+  teams: "Microsoft Teams",
+  phone: "Phone call",
+  in_person: "In person",
+  other: "Custom link",
+}
 
 export const createEventTypeSchema = z.object({
   title: z.string().trim().min(1, "Title is required").max(120),
@@ -25,7 +45,9 @@ export const createEventTypeSchema = z.object({
     .int()
     .min(5, "Meetings must be at least 5 minutes")
     .max(480, "Meetings must be at most 8 hours"),
-  color: hexColorSchema.default("#4a4bd7"),
+  color: hexColorSchema.default("#006bff"),
+  location: z.enum(LOCATION_VALUES).default("google_meet"),
+  locationAddress: z.string().trim().max(500).optional().or(z.literal("")),
   bufferBefore: z.number().int().min(0).max(240).default(0),
   bufferAfter: z.number().int().min(0).max(240).default(0),
   minNotice: z.number().int().min(0).max(10080).default(240), // up to 1 week in minutes

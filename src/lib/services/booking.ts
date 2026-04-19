@@ -1,16 +1,26 @@
 import { prisma } from "@/app/lib/db"
 import { addMinutes } from "date-fns"
+import { createHash, randomUUID } from "crypto"
 import { isSlotStillAvailable } from "@/lib/services/slots"
 import {
   createCalendarEvent,
   deleteCalendarEvent,
 } from "@/lib/services/calendar"
 import {
+  createZoomMeeting,
+  deleteZoomMeeting,
+} from "@/lib/services/zoom"
+import {
+  createTeamsMeeting,
+  deleteTeamsMeeting,
+} from "@/lib/services/teams"
+import {
   sendBookingConfirmationToBooker,
   sendBookingNotificationToHost,
   sendCancellationToBooker,
   sendCancellationToHost,
 } from "@/lib/services/email"
+import { APP_NAME } from "@/lib/brand"
 import type { CreateBookingInput } from "@/lib/validators/booking"
 
 export class SlotUnavailableError extends Error {
@@ -18,6 +28,11 @@ export class SlotUnavailableError extends Error {
     super("That time is no longer available. Please pick another slot.")
     this.name = "SlotUnavailableError"
   }
+}
+
+function advisoryLockKeys(value: string): [number, number] {
+  const digest = createHash("sha256").update(value).digest()
+  return [digest.readInt32BE(0), digest.readInt32BE(4)]
 }
 
 /**
@@ -44,12 +59,23 @@ export async function createBooking(input: CreateBookingInput) {
   )
   if (!stillFree) throw new SlotUnavailableError()
 
-  // Atomic conflict check + insert.
+  // Atomic host-level lock + conflict check + insert. A host-level lock is
+  // deliberately conservative: it prevents overlapping bookings across all of
+  // the host's event types, not only identical slot starts.
   const booking = await prisma.$transaction(async (tx) => {
+    const [lockA, lockB] = advisoryLockKeys(`booking-host:${eventType.userId}`)
+    await tx.$queryRaw<{ locked: number }[]>`
+      WITH lock AS (
+        SELECT pg_advisory_xact_lock(${lockA}, ${lockB})
+      )
+      SELECT 1::int AS locked
+      FROM lock
+    `
+
     const conflict = await tx.booking.findFirst({
       where: {
         hostId: eventType.userId,
-        status: "CONFIRMED",
+        status: { not: "CANCELLED" },
         // Overlap: existing.start < new.end AND existing.end > new.start
         startTime: { lt: endUtc },
         endTime: { gt: startUtc },
@@ -65,9 +91,12 @@ export async function createBooking(input: CreateBookingInput) {
         bookerName: input.bookerName,
         bookerEmail: input.bookerEmail,
         bookerNotes: input.bookerNotes || null,
+        bookerPhone: input.bookerPhone || null,
         bookerTimezone: input.bookerTimezone,
         startTime: startUtc,
         endTime: endUtc,
+        icalUid: randomUUID(),
+        icalSequence: 0,
       },
     })
   })
@@ -76,55 +105,114 @@ export async function createBooking(input: CreateBookingInput) {
   const hostName =
     eventType.user.name || eventType.user.username || "Your host"
   const description = input.bookerNotes
-    ? `${input.bookerNotes}\n\nBooked via Fluid.`
-    : "Booked via Fluid."
+    ? `${input.bookerNotes}\n\nBooked via ${APP_NAME}.`
+    : `Booked via ${APP_NAME}.`
 
-  const [calendarEventId] = await Promise.all([
-    createCalendarEvent({
+  // Create provider-specific meeting link.
+  let meetingUrl: string | null = null
+  let meetingId: string | null = null
+  let meetingPassword: string | null = null
+  const meetingProvider = eventType.location ?? null
+
+  if (eventType.location === "zoom") {
+    const zoomResult = await createZoomMeeting({
       userId: eventType.userId,
-      summary: `${eventType.title} with ${input.bookerName}`,
+      topic: `${eventType.title} with ${input.bookerName}`,
+      startUtc,
+      durationMin: eventType.duration,
+    }).catch((err) => { console.warn("[booking] zoom meeting failed", err); return null })
+    if (zoomResult) {
+      meetingUrl = zoomResult.joinUrl
+      meetingId = String(zoomResult.id)
+      meetingPassword = zoomResult.password || null
+    }
+  } else if (eventType.location === "teams") {
+    const teamsResult = await createTeamsMeeting({
+      userId: eventType.userId,
+      subject: `${eventType.title} with ${input.bookerName}`,
       description,
       startUtc,
       endUtc,
       attendeeEmail: input.bookerEmail,
       attendeeName: input.bookerName,
-    }),
-    sendBookingConfirmationToBooker({
-      eventTitle: eventType.title,
-      hostName,
-      hostEmail: eventType.user.email,
-      bookerName: input.bookerName,
-      bookerEmail: input.bookerEmail,
-      startUtc,
-      endUtc,
-      hostTimezone: eventType.user.timezone,
-      bookerTimezone: input.bookerTimezone,
-      bookerNotes: input.bookerNotes,
-      bookingId: booking.id,
-    }).catch((err) => console.warn("[booking] booker email failed", err)),
-    sendBookingNotificationToHost({
-      eventTitle: eventType.title,
-      hostName,
-      hostEmail: eventType.user.email,
-      bookerName: input.bookerName,
-      bookerEmail: input.bookerEmail,
-      startUtc,
-      endUtc,
-      hostTimezone: eventType.user.timezone,
-      bookerTimezone: input.bookerTimezone,
-      bookerNotes: input.bookerNotes,
-      bookingId: booking.id,
-    }).catch((err) => console.warn("[booking] host email failed", err)),
-  ])
-
-  if (calendarEventId) {
-    await prisma.booking.update({
-      where: { id: booking.id },
-      data: { calendarEventId },
-    })
+    }).catch((err) => { console.warn("[booking] teams meeting failed", err); return null })
+    if (teamsResult) {
+      meetingUrl = teamsResult.joinUrl
+      meetingId = teamsResult.calendarEventId
+    }
   }
 
-  return { ...booking, calendarEventId: calendarEventId ?? null }
+  // Create Google Calendar event (includes Meet link when location=google_meet).
+  const calendarDescriptionParts: (string | null | undefined)[] = []
+  if (meetingUrl) calendarDescriptionParts.push(`Join: ${meetingUrl}`)
+  if (eventType.location === "phone" && input.bookerPhone)
+    calendarDescriptionParts.push(`Call: ${input.bookerPhone}`)
+  if (eventType.location === "in_person" && eventType.locationAddress)
+    calendarDescriptionParts.push(`Meeting at: ${eventType.locationAddress}`)
+  if (input.bookerNotes) calendarDescriptionParts.push(input.bookerNotes)
+  calendarDescriptionParts.push(`Booked via ${APP_NAME}.`)
+
+  const calendarDescription = calendarDescriptionParts.filter(Boolean).join("\n\n")
+
+  const calendarResult = await createCalendarEvent({
+    userId: eventType.userId,
+    summary: `${eventType.title} with ${input.bookerName}`,
+    description: calendarDescription,
+    startUtc,
+    endUtc,
+    attendeeEmail: input.bookerEmail,
+    attendeeName: input.bookerName,
+    requestMeetLink: eventType.location === "google_meet",
+    physicalLocation:
+      eventType.location === "in_person"
+        ? (eventType.locationAddress ?? undefined)
+        : undefined,
+  })
+
+  if (eventType.location === "google_meet") {
+    meetingUrl = calendarResult?.meetingUrl ?? null
+  }
+  const calendarEventId = calendarResult?.id ?? null
+
+  const emailCtx = {
+    eventTitle: eventType.title,
+    hostName,
+    hostEmail: eventType.user.email,
+    bookerName: input.bookerName,
+    bookerEmail: input.bookerEmail,
+    startUtc,
+    endUtc,
+    hostTimezone: eventType.user.timezone,
+    bookerTimezone: input.bookerTimezone,
+    bookerNotes: input.bookerNotes,
+    bookerPhone: input.bookerPhone || null,
+    locationAddress: eventType.location === "in_person" ? (eventType.locationAddress ?? null) : null,
+    bookingId: booking.id,
+    icalUid: booking.icalUid!,
+    icalSequence: booking.icalSequence,
+    meetingUrl,
+  }
+
+  await sendBookingConfirmationToBooker(emailCtx).catch((err) =>
+    console.warn("[booking] booker email failed", err),
+  )
+  await new Promise((r) => setTimeout(r, 4000))
+  await sendBookingNotificationToHost(emailCtx).catch((err) =>
+    console.warn("[booking] host email failed", err),
+  )
+
+  const updateData: Record<string, unknown> = {}
+  if (calendarEventId) updateData.calendarEventId = calendarEventId
+  if (meetingUrl) updateData.meetingUrl = meetingUrl
+  if (meetingId) updateData.meetingId = meetingId
+  if (meetingPassword) updateData.meetingPassword = meetingPassword
+  if (meetingProvider) updateData.meetingProvider = meetingProvider
+
+  if (Object.keys(updateData).length > 0) {
+    await prisma.booking.update({ where: { id: booking.id }, data: updateData })
+  }
+
+  return { ...booking, calendarEventId, meetingUrl, meetingId, meetingPassword }
 }
 
 export async function cancelBooking(bookingId: string, actorUserId: string) {
@@ -137,38 +225,50 @@ export async function cancelBooking(bookingId: string, actorUserId: string) {
   }
   if (booking.status === "CANCELLED") return booking
 
+  const nextSequence = booking.icalSequence + 1
   const updated = await prisma.booking.update({
     where: { id: booking.id },
-    data: { status: "CANCELLED", cancelledAt: new Date() },
+    data: {
+      status: "CANCELLED",
+      cancelledAt: new Date(),
+      icalSequence: nextSequence,
+      icalUid: booking.icalUid ?? randomUUID(),
+    },
   })
 
   const hostName = booking.host.name || booking.host.username || "Your host"
+  const emailCtx = {
+    eventTitle: booking.eventType.title,
+    hostName,
+    hostEmail: booking.host.email,
+    bookerName: booking.bookerName,
+    bookerEmail: booking.bookerEmail,
+    startUtc: booking.startTime,
+    endUtc: booking.endTime,
+    hostTimezone: booking.host.timezone,
+    bookerTimezone: booking.bookerTimezone,
+    bookingId: booking.id,
+    icalUid: updated.icalUid!,
+    icalSequence: nextSequence,
+  }
+
   await Promise.all([
     deleteCalendarEvent(booking.hostId, booking.calendarEventId),
-    sendCancellationToBooker({
-      eventTitle: booking.eventType.title,
-      hostName,
-      hostEmail: booking.host.email,
-      bookerName: booking.bookerName,
-      bookerEmail: booking.bookerEmail,
-      startUtc: booking.startTime,
-      endUtc: booking.endTime,
-      hostTimezone: booking.host.timezone,
-      bookerTimezone: booking.bookerTimezone,
-      bookingId: booking.id,
-    }).catch((err) => console.warn("[booking] cancel-booker email failed", err)),
-    sendCancellationToHost({
-      eventTitle: booking.eventType.title,
-      hostName,
-      hostEmail: booking.host.email,
-      bookerName: booking.bookerName,
-      bookerEmail: booking.bookerEmail,
-      startUtc: booking.startTime,
-      endUtc: booking.endTime,
-      hostTimezone: booking.host.timezone,
-      bookerTimezone: booking.bookerTimezone,
-      bookingId: booking.id,
-    }).catch((err) => console.warn("[booking] cancel-host email failed", err)),
+    booking.meetingProvider === "zoom"
+      ? deleteZoomMeeting(booking.hostId, booking.meetingId).catch((err) =>
+          console.warn("[booking] zoom delete failed", err),
+        )
+      : booking.meetingProvider === "teams"
+        ? deleteTeamsMeeting(booking.hostId, booking.meetingId).catch((err) =>
+            console.warn("[booking] teams delete failed", err),
+          )
+        : Promise.resolve(),
+    sendCancellationToBooker(emailCtx).catch((err) =>
+      console.warn("[booking] cancel-booker email failed", err),
+    ),
+    sendCancellationToHost(emailCtx).catch((err) =>
+      console.warn("[booking] cancel-host email failed", err),
+    ),
   ])
 
   return updated

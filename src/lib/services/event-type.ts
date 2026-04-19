@@ -44,6 +44,10 @@ export async function getPublicEventType(username: string, slug: string) {
           bio: true,
           image: true,
           timezone: true,
+          dateFormat: true,
+          timeFormat: true,
+          logoUrl: true,
+          useAppBranding: true,
         },
       },
     },
@@ -63,6 +67,8 @@ export async function getPublicProfile(username: string) {
       bio: true,
       image: true,
       timezone: true,
+      logoUrl: true,
+      useAppBranding: true,
       eventTypes: {
         where: { isActive: true, deletedAt: null },
         orderBy: { createdAt: "asc" },
@@ -91,6 +97,8 @@ export async function createEventType(
         description: input.description || null,
         duration: input.duration,
         color: input.color,
+        location: input.location ?? "google_meet",
+        locationAddress: input.locationAddress || null,
         bufferBefore: input.bufferBefore,
         bufferAfter: input.bufferAfter,
         minNotice: input.minNotice,
@@ -123,6 +131,8 @@ export async function updateEventType(
   if (input.minNotice !== undefined) data.minNotice = input.minNotice
   if (input.maxDaysInFuture !== undefined)
     data.maxDaysInFuture = input.maxDaysInFuture
+  if (input.location !== undefined) data.location = input.location
+  if (input.locationAddress !== undefined) data.locationAddress = input.locationAddress || null
   if (input.isActive !== undefined) data.isActive = input.isActive
 
   try {

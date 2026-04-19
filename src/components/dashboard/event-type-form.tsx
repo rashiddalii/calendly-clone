@@ -2,7 +2,7 @@
 
 import { useActionState, useId, useState } from "react"
 import Link from "next/link"
-import { ChevronDown } from "lucide-react"
+import { ChevronDown, Globe, Lock, MapPin, Phone } from "lucide-react"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -12,6 +12,8 @@ import {
   updateEventTypeAction,
   type FormState,
 } from "@/lib/actions/event-type"
+import { LOCATION_VALUES, type LocationValue } from "@/lib/validators/event-type"
+import { GoogleMeetIcon, TeamsIcon, ZoomIcon } from "@/components/icons/brand"
 
 type SchedulingPreset = {
   id: string
@@ -55,6 +57,45 @@ function minutesToHuman(minutes: number): string {
   return m === 0 ? `${h} hr${h > 1 ? "s" : ""}` : `${h} hr ${m} min`
 }
 
+// Rich icon badges for non-platform options
+function PhoneRichIcon() {
+  return (
+    <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#D1FAE5]">
+      <Phone className="h-4 w-4 text-[#059669]" aria-hidden />
+    </span>
+  )
+}
+
+function InPersonRichIcon() {
+  return (
+    <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#FEF3C7]">
+      <MapPin className="h-4 w-4 text-[#D97706]" aria-hidden />
+    </span>
+  )
+}
+
+function CustomLinkRichIcon() {
+  return (
+    <span className="flex h-8 w-8 items-center justify-center rounded-[10px] bg-[#EDE9FE]">
+      <Globe className="h-4 w-4 text-[#7C3AED]" aria-hidden />
+    </span>
+  )
+}
+
+const LOCATION_OPTIONS: {
+  value: LocationValue
+  label: string
+  sublabel: string
+  icon: React.ReactNode
+}[] = [
+  { value: "google_meet", label: "Google Meet",      sublabel: "Auto-generated link",   icon: <GoogleMeetIcon className="h-8 w-8 shrink-0" /> },
+  { value: "zoom",        label: "Zoom",             sublabel: "Auto-generated link",   icon: <ZoomIcon className="h-8 w-8 shrink-0" /> },
+  { value: "teams",       label: "Microsoft Teams",  sublabel: "Auto-generated link",   icon: <TeamsIcon className="h-8 w-8 shrink-0" /> },
+  { value: "phone",       label: "Phone call",       sublabel: "Invitee provides number", icon: <PhoneRichIcon /> },
+  { value: "in_person",   label: "In person",        sublabel: "Provide address",       icon: <InPersonRichIcon /> },
+  { value: "other",       label: "Custom link",      sublabel: "Paste any meeting URL", icon: <CustomLinkRichIcon /> },
+]
+
 type InitialValues = {
   id?: string
   title?: string
@@ -62,6 +103,8 @@ type InitialValues = {
   description?: string | null
   duration?: number
   color?: string
+  location?: string
+  locationAddress?: string | null
   bufferBefore?: number
   bufferAfter?: number
   minNotice?: number
@@ -69,12 +112,29 @@ type InitialValues = {
   isActive?: boolean
 }
 
+type ConnectedLocations = {
+  googleMeet: boolean
+  zoom: boolean
+  teams: boolean
+}
+
+const LOCATION_INTEGRATION_REQUIRED: Partial<Record<LocationValue, {
+  connectKey: keyof ConnectedLocations
+  integrationName: string
+  provider: string
+  inProgress?: boolean
+}>> = {
+  google_meet: { connectKey: "googleMeet", integrationName: "Google Calendar", provider: "google-calendar" },
+  zoom: { connectKey: "zoom", integrationName: "Zoom", provider: "zoom" },
+  teams: { connectKey: "teams", integrationName: "Microsoft Teams", provider: "teams", inProgress: true },
+}
+
 const initialState: FormState = { status: "idle" }
 
 const PRESET_COLORS = [
   "#006BFF",
-  "#6366f1",
-  "#745479",
+  "#006bff",
+  "#2d8a5e",
   "#a8364b",
   "#2f7d5b",
   "#d98020",
@@ -83,12 +143,19 @@ const PRESET_COLORS = [
 export function EventTypeForm({
   mode,
   initial = {},
+  connectedLocations = { googleMeet: true, zoom: false, teams: false },
 }: {
   mode: "create" | "edit"
   initial?: InitialValues
+  connectedLocations?: ConnectedLocations
 }) {
   const id = useId()
   const [color, setColor] = useState(initial.color ?? "#006BFF")
+  const rawLocation = (initial.location ?? "google_meet") as LocationValue
+  const [location, setLocation] = useState<LocationValue>(
+    LOCATION_VALUES.includes(rawLocation) ? rawLocation : "google_meet"
+  )
+  const [blockedLocation, setBlockedLocation] = useState<LocationValue | null>(null)
 
   const [bufferBefore, setBufferBefore] = useState(initial.bufferBefore ?? 10)
   const [bufferAfter, setBufferAfter] = useState(initial.bufferAfter ?? 10)
@@ -224,7 +291,7 @@ export function EventTypeForm({
                   type="button"
                   onClick={() => setColor(c)}
                   aria-label={`Pick ${c}`}
-                  className={`h-8 w-8 rounded-full transition-transform hover:scale-110 ${
+                  className={`h-8 w-8 cursor-pointer rounded-full transition-transform hover:scale-110 ${
                     color === c ? "ring-2 ring-[#006BFF] ring-offset-2 ring-offset-white" : ""
                   }`}
                   style={{ background: c }}
@@ -233,6 +300,106 @@ export function EventTypeForm({
               <input type="hidden" name="color" value={color} />
             </div>
           </div>
+        </div>
+
+        {/* Location picker */}
+        <div className="flex flex-col gap-2">
+          <Label className="text-on-surface-variant">Location</Label>
+          <input type="hidden" name="location" value={location} />
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {LOCATION_OPTIONS.map((opt) => {
+              const selected = location === opt.value
+              const integration = LOCATION_INTEGRATION_REQUIRED[opt.value]
+              const isLocked = integration
+                ? !connectedLocations[integration.connectKey]
+                : false
+
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    if (isLocked) {
+                      setBlockedLocation(opt.value)
+                    } else {
+                      setLocation(opt.value)
+                      setBlockedLocation(null)
+                    }
+                  }}
+                  className={cn(
+                    "relative flex cursor-pointer items-center gap-2.5 rounded-lg border-2 px-3 py-2.5 text-left transition-all",
+                    selected
+                      ? "border-[#006BFF] bg-[#EEF4FF]"
+                      : isLocked
+                        ? "border-[#E5E7EB] bg-[#F9FAFB] opacity-70 hover:border-[#FDE68A]"
+                        : "border-[#E5E7EB] bg-white hover:border-[#006BFF]/30 hover:bg-[#F9FAFB]"
+                  )}
+                >
+                  <span className="shrink-0">{opt.icon}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className={cn("truncate text-xs font-semibold", selected ? "text-[#006BFF]" : "text-[#111827]")}>
+                      {opt.label}
+                    </p>
+                    <p className="truncate text-[10px] text-[#6B7280]">{opt.sublabel}</p>
+                  </div>
+                  {isLocked && (
+                    <Lock className="h-3 w-3 shrink-0 text-[#9CA3AF]" />
+                  )}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* In-person address input */}
+          {location === "in_person" && (
+            <div className="mt-2 flex flex-col gap-1.5">
+              <Label htmlFor={`${id}-locationAddress`} className="text-on-surface-variant">
+                Meeting address <span className="text-xs font-normal text-[#6B7280]">(shown to invitees)</span>
+              </Label>
+              <Input
+                id={`${id}-locationAddress`}
+                name="locationAddress"
+                defaultValue={initial.locationAddress ?? ""}
+                placeholder="123 Main St, Suite 100, City, State 12345"
+              />
+            </div>
+          )}
+
+          {/* Phone info callout */}
+          {location === "phone" && (
+            <div className="mt-2 rounded-lg border border-[#D1FAE5] bg-[#F0FDF4] px-3 py-2.5 text-sm text-[#065F46]">
+              Invitees will be asked to provide their phone number when booking.
+            </div>
+          )}
+
+          {/* Integration gate callout */}
+          {blockedLocation && (() => {
+            const integration = LOCATION_INTEGRATION_REQUIRED[blockedLocation]
+            if (!integration) return null
+            if (integration.inProgress) {
+              return (
+                <div className="mt-1 rounded-lg border border-[#FDE68A] bg-[#FFFBEB] px-3 py-2.5 text-sm text-[#92400E]">
+                  <span className="font-medium">{integration.integrationName} is being set up.</span> This integration is currently in progress and will be available soon.
+                </div>
+              )
+            }
+            return (
+              <div className="mt-1 flex items-center justify-between gap-3 rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-3 py-2.5">
+                <p className="text-sm text-[#1D4ED8]">
+                  Connect <span className="font-semibold">{integration.integrationName}</span> to use this location.
+                </p>
+                <Link
+                  href={`/integrations/${integration.provider}`}
+                  className="cursor-pointer whitespace-nowrap text-sm font-semibold text-[#006BFF] hover:underline"
+                >
+                  Connect now
+                </Link>
+              </div>
+            )
+          })()}
+          {errors.location && (
+            <p className="text-xs text-[color:var(--error)]">{errors.location}</p>
+          )}
         </div>
       </section>
 
@@ -451,7 +618,7 @@ export function EventTypeForm({
             defaultChecked={initial.isActive ?? true}
             className="h-4 w-4 rounded accent-[#006BFF]"
           />
-          Active — the booking link is publicly reachable
+          Active: the booking link is publicly reachable
         </label>
       </section>
 

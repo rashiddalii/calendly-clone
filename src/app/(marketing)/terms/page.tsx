@@ -8,33 +8,33 @@ export const metadata: Metadata = {
 
 export default function TermsPage() {
   return (
-    <div style={{ backgroundColor: "#fcf8fe" }}>
+    <div style={{ backgroundColor: "#ffffff" }}>
       <div className="mx-auto max-w-3xl px-6 py-16">
         {/* Header */}
         <div className="mb-12">
           <Link
             href="/"
             className="mb-8 inline-block text-sm font-medium transition-opacity hover:opacity-70"
-            style={{ color: "#4a4bd7" }}
+            style={{ color: "#006bff" }}
           >
             ← Back to Fluid
           </Link>
           <h1
             className="mb-3 text-4xl font-bold leading-tight"
-            style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+            style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
           >
             Terms of Service
           </h1>
-          <p className="text-sm" style={{ color: "#7b7984" }}>
+          <p className="text-sm" style={{ color: "#6b7d94" }}>
             Effective date: April 18, 2026
           </p>
         </div>
 
         {/* Intro */}
-        <p className="mb-10 text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+        <p className="mb-10 text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
           These Terms of Service (&quot;Terms&quot;) govern your access to and use of Fluid
           (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;), the scheduling platform available at{" "}
-          <span style={{ color: "#4a4bd7" }}>fluidcal.vercel.app</span>. Please read these Terms
+          <span style={{ color: "#006bff" }}>fluidcal.vercel.app</span>. Please read these Terms
           carefully before using the service. By creating an account or using Fluid in any way, you
           agree to be bound by these Terms.
         </p>
@@ -44,11 +44,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               1. Acceptance of Terms
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               By accessing or using Fluid, you confirm that you are at least 16 years old, have read
               and understood these Terms, and agree to be legally bound by them. If you are using
               Fluid on behalf of an organisation, you represent that you have the authority to bind
@@ -60,11 +60,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               2. Description of Service
             </h2>
-            <p className="mb-4 text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mb-4 text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               Fluid is a scheduling platform that allows you to:
             </p>
             <ul className="mb-4 flex flex-col gap-2 pl-4">
@@ -78,15 +78,15 @@ export default function TermsPage() {
                 <li key={item} className="flex items-start gap-2.5">
                   <span
                     className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: "#4a4bd7" }}
+                    style={{ backgroundColor: "#006bff" }}
                   />
-                  <span className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
                     {item}
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
               We reserve the right to modify, suspend, or discontinue any aspect of the service at any
               time with reasonable notice where practicable.
             </p>
@@ -96,11 +96,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               3. Accounts
             </h2>
-            <p className="mb-4 text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mb-4 text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               To use Fluid you must authenticate via a supported OAuth provider (Google or GitHub).
               You are responsible for:
             </p>
@@ -114,15 +114,15 @@ export default function TermsPage() {
                 <li key={item} className="flex items-start gap-2.5">
                   <span
                     className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: "#4a4bd7" }}
+                    style={{ backgroundColor: "#006bff" }}
                   />
-                  <span className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
                     {item}
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mt-4 text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
               We reserve the right to suspend or terminate accounts that violate these Terms.
             </p>
           </section>
@@ -131,11 +131,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               4. Acceptable Use
             </h2>
-            <p className="mb-4 text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mb-4 text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               You agree not to use Fluid to:
             </p>
             <ul className="flex flex-col gap-2 pl-4">
@@ -150,9 +150,9 @@ export default function TermsPage() {
                 <li key={item} className="flex items-start gap-2.5">
                   <span
                     className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: "#4a4bd7" }}
+                    style={{ backgroundColor: "#006bff" }}
                   />
-                  <span className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
                     {item}
                   </span>
                 </li>
@@ -164,11 +164,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               5. Google Calendar Integration
             </h2>
-            <p className="mb-4 text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mb-4 text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               Fluid offers optional integration with Google Calendar. When you connect your Google
               account, we request the following OAuth scopes:
             </p>
@@ -180,20 +180,20 @@ export default function TermsPage() {
                 <li key={item} className="flex items-start gap-2.5">
                   <span
                     className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                    style={{ backgroundColor: "#4a4bd7" }}
+                    style={{ backgroundColor: "#006bff" }}
                   />
-                  <span className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+                  <span className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
                     {item}
                   </span>
                 </li>
               ))}
             </ul>
-            <p className="mb-3 text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mb-3 text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
               We access your calendar data only to the minimum extent necessary to provide this
               feature. We do not read the content of existing calendar events beyond what is
               required to determine availability.
             </p>
-            <p className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
               You can revoke Fluid&apos;s access to Google Calendar at any time from your Google
               Account security settings at{" "}
               <a
@@ -201,7 +201,7 @@ export default function TermsPage() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2"
-                style={{ color: "#4a4bd7" }}
+                style={{ color: "#006bff" }}
               >
                 myaccount.google.com/permissions
               </a>
@@ -214,16 +214,16 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               6. Intellectual Property
             </h2>
-            <p className="mb-3 text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="mb-3 text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               Fluid and its original content, features, and functionality are owned by us and are
               protected by applicable intellectual property laws. You may not copy, modify,
               distribute, or create derivative works based on Fluid without our prior written consent.
             </p>
-            <p className="text-sm leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-sm leading-relaxed" style={{ color: "#4b5a6d" }}>
               You retain ownership of any content you create within the service (event types,
               availability configurations, booking notes). By using Fluid, you grant us a limited
               licence to store and display that content solely for the purpose of providing the
@@ -235,11 +235,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               7. Termination
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               You may delete your account at any time from the settings page. We may suspend or
               terminate your access to Fluid immediately, without prior notice, if we reasonably
               believe you have violated these Terms or if required by law. Upon termination, your
@@ -248,7 +248,7 @@ export default function TermsPage() {
               <Link
                 href="/privacy"
                 className="underline underline-offset-2"
-                style={{ color: "#4a4bd7" }}
+                style={{ color: "#006bff" }}
               >
                 Privacy Policy
               </Link>
@@ -260,11 +260,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               8. Disclaimer of Warranties
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               Fluid is provided &quot;as is&quot; and &quot;as available&quot; without warranties of any kind,
               either express or implied, including but not limited to implied warranties of
               merchantability, fitness for a particular purpose, or non-infringement. We do not
@@ -277,11 +277,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               9. Limitation of Liability
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               To the fullest extent permitted by applicable law, Fluid and its operators shall not be
               liable for any indirect, incidental, special, consequential, or punitive damages,
               including but not limited to lost profits, missed meetings, loss of data, or business
@@ -296,11 +296,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               10. Changes to Terms
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               We may update these Terms from time to time. When we do, we will revise the effective
               date at the top of this page. For material changes, we will notify you by email or by
               a prominent in-app notice at least 14 days before the changes take effect. Continued
@@ -314,11 +314,11 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               11. Governing Law
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               These Terms are governed by and construed in accordance with applicable law. Any
               disputes arising under these Terms will be subject to the exclusive jurisdiction of
               the competent courts of the jurisdiction in which you reside, unless otherwise required
@@ -330,17 +330,17 @@ export default function TermsPage() {
           <section>
             <h2
               className="mb-4 text-xl font-semibold"
-              style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+              style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
             >
               12. Contact
             </h2>
-            <p className="text-base leading-relaxed" style={{ color: "#5f5e68" }}>
+            <p className="text-base leading-relaxed" style={{ color: "#4b5a6d" }}>
               If you have any questions about these Terms or wish to report a violation, please
               contact us at{" "}
               <a
                 href="mailto:support@fluidcal.app"
                 className="font-medium underline underline-offset-2"
-                style={{ color: "#4a4bd7" }}
+                style={{ color: "#006bff" }}
               >
                 support@fluidcal.app
               </a>
@@ -352,14 +352,14 @@ export default function TermsPage() {
         {/* Footer divider */}
         <div
           className="mt-16 border-t pt-8 text-center text-xs"
-          style={{ borderColor: "#e8e6f0", color: "#7b7984" }}
+          style={{ borderColor: "#e8e6f0", color: "#6b7d94" }}
         >
           <p>
             © {new Date().getFullYear()} Fluid. All rights reserved.{" "}
             <Link
               href="/privacy"
               className="underline underline-offset-2 transition-opacity hover:opacity-70"
-              style={{ color: "#4a4bd7" }}
+              style={{ color: "#006bff" }}
             >
               Privacy Policy
             </Link>

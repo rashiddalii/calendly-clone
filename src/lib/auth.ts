@@ -1,12 +1,16 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
 import MicrosoftEntraId from "next-auth/providers/microsoft-entra-id"
-import Resend from "next-auth/providers/resend"
+import Nodemailer from "next-auth/providers/nodemailer"
+import Credentials from "next-auth/providers/credentials"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import { prisma } from "@/lib/db"
 import { authConfig } from "@/lib/auth.config"
 import { generateUsername } from "@/lib/services/user"
 import { sendMagicLinkEmail } from "@/lib/services/email"
+import { verifyPassword } from "@/lib/services/password"
+import { passwordSignInSchema } from "@/lib/validators/auth"
+
 
 function isTrustHost(): boolean {
   const raw = (process.env.AUTH_TRUST_HOST ?? "").toLowerCase()
@@ -51,12 +55,63 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           }),
         ]
       : []),
-    Resend({
-      apiKey: process.env.RESEND_API_KEY,
-      from: process.env.AUTH_RESEND_FROM ?? "noreply@example.com",
+    Nodemailer({
+      server: {
+        host: process.env.SMTP_HOST ?? "localhost",
+        port: Number(process.env.SMTP_PORT ?? 587),
+        secure: process.env.SMTP_SECURE === "true",
+        auth: {
+          user: process.env.SMTP_USER ?? "",
+          pass: process.env.SMTP_PASS ?? "",
+        },
+      },
+      from: process.env.SMTP_FROM ?? "noreply@example.com",
       maxAge: 600,
       sendVerificationRequest: async ({ identifier, url }) => {
         await sendMagicLinkEmail({ to: identifier, url })
+      },
+    }),
+    // Email + password sign-in
+    Credentials({
+      id: "credentials",
+      name: "Email and Password",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const parsed = passwordSignInSchema.safeParse(credentials)
+        if (!parsed.success) return null
+
+        const user = await prisma.user.findUnique({
+          where: { email: parsed.data.email },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            image: true,
+            username: true,
+            password: true,
+            emailVerified: true,
+          },
+        })
+
+        if (!user || !user.password) return null
+
+        const valid = await verifyPassword(parsed.data.password, user.password)
+        if (!valid) return null
+
+        if (!user.emailVerified) {
+          return null
+        }
+
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          username: user.username,
+        }
       },
     }),
   ],

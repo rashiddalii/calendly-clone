@@ -5,7 +5,7 @@ import { MeetingsClient } from "./meetings-client"
 import type { SerializedBooking } from "./meetings-client"
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header"
 
-export const metadata = { title: "Meetings — Fluid" }
+export const metadata = { title: "Meetings | Fluid" }
 
 export default async function MeetingsPage() {
   const session = await auth()

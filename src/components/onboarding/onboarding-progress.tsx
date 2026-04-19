@@ -22,7 +22,7 @@ export function OnboardingProgress({ current }: OnboardingProgressProps) {
             {i > 0 && (
               <div
                 className="h-px w-8"
-                style={{ backgroundColor: isDone ? "#4a4bd7" : "#b3b0bc" }}
+                style={{ backgroundColor: isDone ? "#006bff" : "#9dafc5" }}
               />
             )}
             <div className="flex items-center gap-1.5">
@@ -31,19 +31,19 @@ export function OnboardingProgress({ current }: OnboardingProgressProps) {
                 style={
                   isActive
                     ? {
-                        background: "linear-gradient(135deg, #4a4bd7, #7073ff)",
-                        color: "#fbf7ff",
+                        background: "linear-gradient(135deg, #006bff, #4d94ff)",
+                        color: "#ffffff",
                       }
                     : isDone
-                      ? { backgroundColor: "#e2e0f9", color: "#4a4bd7" }
-                      : { backgroundColor: "#e4e1ed", color: "#5f5e68" }
+                      ? { backgroundColor: "#d9e8ff", color: "#006bff" }
+                      : { backgroundColor: "#d0deff", color: "#4b5a6d" }
                 }
               >
                 {isDone ? "✓" : num}
               </div>
               <span
                 className="hidden text-xs font-medium sm:block"
-                style={{ color: isActive ? "#32323b" : "#5f5e68" }}
+                style={{ color: isActive ? "#1c2b4b" : "#4b5a6d" }}
               >
                 {step.label}
               </span>

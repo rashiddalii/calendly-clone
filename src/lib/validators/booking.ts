@@ -5,6 +5,7 @@ export const createBookingSchema = z.object({
   bookerName: z.string().trim().min(1, "Please enter your name").max(120),
   bookerEmail: z.string().email("Please enter a valid email address"),
   bookerNotes: z.string().trim().max(2000).optional().or(z.literal("")),
+  bookerPhone: z.string().trim().max(30).optional().or(z.literal("")),
   // ISO 8601 UTC timestamps. The server re-derives endTime from duration and
   // re-checks availability before insert.
   startTime: z.string().datetime({ message: "Invalid start time" }),

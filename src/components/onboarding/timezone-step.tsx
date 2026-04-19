@@ -44,12 +44,12 @@ export function TimezoneStep({ defaultTimezone }: TimezoneStepProps) {
     <div className="rounded-2xl p-8" style={{ backgroundColor: "#ffffff" }}>
       <h1
         className="mb-2 text-3xl font-semibold"
-        style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+        style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
       >
         Your timezone
       </h1>
-      <p className="mb-8 text-base" style={{ color: "#5f5e68" }}>
-        We&apos;ve detected your timezone automatically — confirm or change it below.
+      <p className="mb-8 text-base" style={{ color: "#4b5a6d" }}>
+        We&apos;ve detected your timezone automatically. Confirm or change it below.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -57,7 +57,7 @@ export function TimezoneStep({ defaultTimezone }: TimezoneStepProps) {
           <label
             htmlFor="timezone"
             className="text-xs font-medium"
-            style={{ color: "#5f5e68" }}
+            style={{ color: "#4b5a6d" }}
           >
             Timezone
           </label>
@@ -70,7 +70,7 @@ export function TimezoneStep({ defaultTimezone }: TimezoneStepProps) {
                 setError(null)
               }}
               className="w-full appearance-none rounded-[0.75rem] px-3 py-2.5 pr-9 text-sm outline-none transition-all"
-              style={{ backgroundColor: "#eae7f1", color: "#32323b" }}
+              style={{ backgroundColor: "#dae6ff", color: "#1c2b4b" }}
             >
               {!inList && (
                 <option value={timezone}>{timezone}</option>
@@ -94,7 +94,7 @@ export function TimezoneStep({ defaultTimezone }: TimezoneStepProps) {
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{ color: "#5f5e68" }}
+                style={{ color: "#4b5a6d" }}
               >
                 <path
                   strokeLinecap="round"
@@ -117,8 +117,8 @@ export function TimezoneStep({ defaultTimezone }: TimezoneStepProps) {
           disabled={isPending}
           className="flex items-center justify-center gap-2 rounded-xl h-11 text-sm font-medium transition-opacity disabled:opacity-50"
           style={{
-            background: "linear-gradient(135deg, #4a4bd7, #7073ff)",
-            color: "#fbf7ff",
+            background: "linear-gradient(135deg, #006bff, #4d94ff)",
+            color: "#ffffff",
           }}
         >
           {isPending ? "Saving…" : "Continue"}

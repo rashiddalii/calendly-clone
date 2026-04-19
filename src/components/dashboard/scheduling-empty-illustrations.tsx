@@ -64,7 +64,7 @@ export function MeetingPollsIllustration() {
           >
             <span>{d}</span>
             <span className="tabular-nums text-[#006BFF]">
-              {n > 0 ? `${n} votes` : "—"}
+              {n > 0 ? `${n} votes` : "0 votes"}
             </span>
           </div>
         ))}

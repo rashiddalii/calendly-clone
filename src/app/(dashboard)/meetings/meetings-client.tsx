@@ -1,40 +1,40 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Calendar, Clock, XCircle } from "lucide-react"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { MeetingCard } from "@/components/dashboard/meeting-card"
+import { useState } from "react";
+import { Calendar, Clock, XCircle } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { MeetingCard } from "@/components/dashboard/meeting-card";
 
 export interface SerializedBooking {
-  id: string
-  status: "CONFIRMED" | "CANCELLED" | "COMPLETED"
-  bookerName: string
-  bookerEmail: string
-  bookerNotes: string | null
-  startTime: string
-  endTime: string
+  id: string;
+  status: "CONFIRMED" | "CANCELLED" | "COMPLETED";
+  bookerName: string;
+  bookerEmail: string;
+  bookerNotes: string | null;
+  startTime: string;
+  endTime: string;
   eventType: {
-    title: string
-    color: string
-    duration: number
-  }
+    title: string;
+    color: string;
+    duration: number;
+  };
   host: {
-    timezone: string
-  }
+    timezone: string;
+  };
 }
 
 interface MeetingsClientProps {
-  upcoming: SerializedBooking[]
-  past: SerializedBooking[]
-  cancelled: SerializedBooking[]
+  upcoming: SerializedBooking[];
+  past: SerializedBooking[];
+  cancelled: SerializedBooking[];
 }
 
 function EmptyState({
   icon: Icon,
   message,
 }: {
-  icon: React.ComponentType<{ className?: string }>
-  message: string
+  icon: React.ComponentType<{ className?: string }>;
+  message: string;
 }) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-[#E5E7EB] bg-white px-6 py-16 text-center shadow-sm">
@@ -43,7 +43,7 @@ function EmptyState({
       </div>
       <p className="text-sm text-[#6B7280]">{message}</p>
     </div>
-  )
+  );
 }
 
 export function MeetingsClient({
@@ -51,34 +51,39 @@ export function MeetingsClient({
   past,
   cancelled,
 }: MeetingsClientProps) {
-  const [upcoming, setUpcoming] = useState(initialUpcoming)
+  const [upcoming, setUpcoming] = useState(initialUpcoming);
 
   const handleCancel = (id: string) => {
-    setUpcoming((prev) => prev.filter((b) => b.id !== id))
-  }
+    setUpcoming((prev) => prev.filter((b) => b.id !== id));
+  };
 
   return (
     <Tabs defaultValue="upcoming">
-      <TabsList variant="line" className="mb-6 w-full justify-start gap-8 bg-transparent p-0">
-        <TabsTrigger
-          value="upcoming"
-          className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+      <div className="mb-6 overflow-x-auto">
+        <TabsList
+          variant="line"
+          className="w-max min-w-full justify-start gap-4 bg-transparent p-0 md:gap-8"
         >
-          Upcoming {upcoming.length > 0 && `(${upcoming.length})`}
-        </TabsTrigger>
-        <TabsTrigger
-          value="past"
-          className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
-        >
-          Past {past.length > 0 && `(${past.length})`}
-        </TabsTrigger>
-        <TabsTrigger
-          value="cancelled"
-          className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
-        >
-          Cancelled {cancelled.length > 0 && `(${cancelled.length})`}
-        </TabsTrigger>
-      </TabsList>
+          <TabsTrigger
+            value="upcoming"
+            className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+          >
+            Upcoming {upcoming.length > 0 && `(${upcoming.length})`}
+          </TabsTrigger>
+          <TabsTrigger
+            value="past"
+            className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+          >
+            Past {past.length > 0 && `(${past.length})`}
+          </TabsTrigger>
+          <TabsTrigger
+            value="cancelled"
+            className="rounded-none px-0 pb-3 text-[#6B7280] data-active:text-[#006BFF] after:bg-[#006BFF]"
+          >
+            Cancelled {cancelled.length > 0 && `(${cancelled.length})`}
+          </TabsTrigger>
+        </TabsList>
+      </div>
 
       <TabsContent value="upcoming">
         {upcoming.length === 0 ? (
@@ -153,5 +158,5 @@ export function MeetingsClient({
         )}
       </TabsContent>
     </Tabs>
-  )
+  );
 }

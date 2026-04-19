@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Navbar } from "@/components/marketing/navbar";
 import { Hero } from "@/components/marketing/hero";
 import { SocialProof } from "@/components/marketing/social-proof";
+import { ValueProp } from "@/components/marketing/value-prop";
 import { FeatureShowcase } from "@/components/marketing/feature-showcase";
 import { Integrations } from "@/components/marketing/integrations";
 import { Pricing } from "@/components/marketing/pricing";
@@ -34,6 +35,7 @@ export default function MarketingPage() {
       <main>
         <Hero />
         <SocialProof />
+        <ValueProp />
         <FeatureShowcase />
         <Integrations />
         <Pricing />

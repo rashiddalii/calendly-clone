@@ -47,12 +47,18 @@ export interface PublicEventTypeView {
   description: string | null
   duration: number
   color: string
+  location: string
+  locationAddress: string | null
   host: {
     name: string | null
     username: string | null
     bio: string | null
     image: string | null
     timezone: string
+    dateFormat: string
+    timeFormat: string
+    logoUrl: string | null
+    useAppBranding: boolean
   }
 }
 

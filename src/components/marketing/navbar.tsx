@@ -2,18 +2,19 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { ChevronDown, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import { FluidLogo } from "@/components/shared/fluid-logo";
 
 const NAV_LINKS = [
-  { label: "Product",   href: "#features",    dropdown: true },
-  { label: "Solutions", href: "#how-it-works", dropdown: true },
-  { label: "Resources", href: "#",             dropdown: true },
-  { label: "Pricing",   href: "#pricing",      dropdown: false },
+  { label: "Features", href: "#features" },
+  { label: "Integrations", href: "#integrations" },
+  { label: "Pricing", href: "#pricing" },
+  { label: "Our Customers", href: "#stories" },
 ];
 
 export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [scrolled,   setScrolled]   = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -57,61 +58,16 @@ export function Navbar() {
       <nav
         aria-label="Main navigation"
         style={{
-          maxWidth: "72rem",       /* max-w-6xl */
+          maxWidth: "72rem" /* max-w-6xl */,
           margin: "0 auto",
-          padding: "1rem 2rem",    /* py-4 px-8 */
+          padding: "1rem 2rem" /* py-4 px-8 */,
           display: "flex",
           alignItems: "center",
           gap: "0.5rem",
         }}
       >
-
-        {/* ── Logo — identical to login page ── */}
-        <Link
-          href="/"
-          aria-label="Fluid home"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "0.5rem",
-            textDecoration: "none",
-            flexShrink: 0,
-          }}
-        >
-          <span
-            aria-hidden="true"
-            style={{
-              width: "36px",          /* h-9 w-9 */
-              height: "36px",
-              borderRadius: "0.5rem", /* rounded-lg */
-              backgroundColor: "#1e3461",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              flexShrink: 0,
-              overflow: "hidden",
-            }}
-          >
-            <img
-              src="/logo-fluid-icon.svg"
-              alt=""
-              width={22}
-              height={22}
-              style={{ objectFit: "contain" }}
-            />
-          </span>
-          <span
-            style={{
-              fontFamily: "var(--font-manrope), sans-serif",
-              fontWeight: 700,
-              fontSize: "1.25rem",    /* text-xl */
-              color: "#006BFF",
-              letterSpacing: "-0.025em", /* tracking-tight */
-            }}
-          >
-            Fluid
-          </span>
-        </Link>
+        {/* ── Logo ── */}
+        <FluidLogo />
 
         {/* ── Desktop nav links (flex:1 → centred) ── */}
         <ul
@@ -127,7 +83,7 @@ export function Navbar() {
             gap: "0.125rem",
           }}
         >
-          {NAV_LINKS.map(({ label, href, dropdown }) => (
+          {NAV_LINKS.map(({ label, href }) => (
             <li key={label}>
               <a
                 href={href}
@@ -135,21 +91,18 @@ export function Navbar() {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  gap: "0.25rem",
                   fontFamily: "var(--font-inter), sans-serif",
                   fontWeight: 500,
-                  fontSize: "0.9375rem", /* text-[15px] — matches auth pages */
+                  fontSize: "0.9375rem",
                   color: "#444444",
                   textDecoration: "none",
+                  minHeight: "44px",
                   padding: "0.5rem 0.875rem",
                   borderRadius: "0.5rem",
                   transition: "background-color 0.14s ease",
                 }}
               >
                 {label}
-                {dropdown && (
-                  <ChevronDown size={13} strokeWidth={2} color="#888888" />
-                )}
               </a>
             </li>
           ))}
@@ -169,11 +122,12 @@ export function Navbar() {
               alignItems: "center",
               fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 500,
-              fontSize: "0.9375rem",   /* text-[15px] */
+              fontSize: "0.9375rem" /* text-[15px] */,
               color: "#444444",
               textDecoration: "none",
-              padding: "0.5rem 1rem",  /* px-4 py-2 */
-              borderRadius: "0.5rem",  /* rounded-lg */
+              minHeight: "44px",
+              padding: "0.5rem 1rem" /* px-4 py-2 */,
+              borderRadius: "0.5rem" /* rounded-lg */,
               border: "1px solid #E5E7EB",
               backgroundColor: "#ffffff",
               transition: "background-color 0.14s ease",
@@ -191,11 +145,12 @@ export function Navbar() {
               alignItems: "center",
               fontFamily: "var(--font-inter), sans-serif",
               fontWeight: 600,
-              fontSize: "0.9375rem",   /* text-[15px] */
+              fontSize: "0.9375rem" /* text-[15px] */,
               color: "#ffffff",
               textDecoration: "none",
+              minHeight: "44px",
               padding: "0.5rem 1.125rem",
-              borderRadius: "0.5rem",  /* rounded-lg */
+              borderRadius: "0.5rem" /* rounded-lg */,
               backgroundColor: "#006BFF",
               border: "1px solid transparent",
               transition: "background-color 0.16s ease",
@@ -212,6 +167,8 @@ export function Navbar() {
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
           aria-expanded={mobileOpen}
           style={{
+            minHeight: "44px",
+            minWidth: "44px",
             padding: "0.5rem",
             borderRadius: "0.5rem",
             border: "1px solid #E5E7EB",

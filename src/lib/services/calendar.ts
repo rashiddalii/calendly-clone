@@ -22,11 +22,27 @@ interface GoogleToken {
   accountId: string
 }
 
+const CALENDAR_SCOPES = [
+  "https://www.googleapis.com/auth/calendar",
+  "https://www.googleapis.com/auth/calendar.events",
+]
+
+function hasCalendarScope(scope: string | null | undefined): boolean {
+  if (!scope) return false
+  return CALENDAR_SCOPES.some((s) => scope.includes(s))
+}
+
 async function getGoogleAccessToken(userId: string): Promise<GoogleToken | null> {
   const account = await prisma.account.findFirst({
     where: { userId, provider: "google" },
   })
   if (!account?.refresh_token) return null
+
+  // Token exists but was granted without calendar scope — treat as not connected.
+  if (!hasCalendarScope(account.scope)) {
+    console.warn("[calendar] Google account lacks calendar scope. Stored scope:", account.scope)
+    return null
+  }
 
   // If the stored access token is still valid (>60s remaining), reuse it.
   const now = Math.floor(Date.now() / 1000)
@@ -101,7 +117,8 @@ export async function getBusyTimes(
       }),
     })
     if (!res.ok) {
-      console.warn("[calendar] freeBusy failed", res.status)
+      const body = await res.text().catch(() => "")
+      console.warn("[calendar] freeBusy failed", res.status, body)
       return []
     }
     const data = (await res.json()) as {
@@ -116,8 +133,13 @@ export async function getBusyTimes(
 }
 
 /**
- * Create a Google Calendar event for a booking. Returns the event ID on
- * success, or null if the integration isn't connected or the call failed.
+ * Create a Google Calendar event for a booking.
+ *
+ * When `requestMeetLink` is true (i.e. the event type location is google_meet),
+ * the Google Calendar API auto-provisions a Meet conference and returns the
+ * join URL. Requires `conferenceDataVersion=1` in the query string.
+ *
+ * Returns `{ id, meetingUrl }` on success, or null if Calendar isn't connected.
  */
 export async function createCalendarEvent(input: {
   userId: string
@@ -127,32 +149,58 @@ export async function createCalendarEvent(input: {
   endUtc: Date
   attendeeEmail: string
   attendeeName: string
-}): Promise<string | null> {
+  requestMeetLink?: boolean
+  physicalLocation?: string
+}): Promise<{ id: string; meetingUrl: string | null } | null> {
   const token = await getGoogleAccessToken(input.userId)
   if (!token) return null
 
+  const params = new URLSearchParams({ sendUpdates: "all" })
+  if (input.requestMeetLink) params.set("conferenceDataVersion", "1")
+
+  const body: Record<string, unknown> = {
+    summary: input.summary,
+    description: input.description,
+    start: { dateTime: input.startUtc.toISOString() },
+    end: { dateTime: input.endUtc.toISOString() },
+    attendees: [{ email: input.attendeeEmail, displayName: input.attendeeName }],
+    reminders: { useDefault: true },
+    ...(input.physicalLocation ? { location: input.physicalLocation } : {}),
+  }
+  if (input.requestMeetLink) {
+    body.conferenceData = {
+      createRequest: {
+        requestId: `fluid-${Date.now()}`,
+        conferenceSolutionKey: { type: "hangoutsMeet" },
+      },
+    }
+  }
+
   try {
-    const res = await fetch(`${EVENTS_URL}?sendUpdates=all`, {
+    const res = await fetch(`${EVENTS_URL}?${params}`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token.accessToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        summary: input.summary,
-        description: input.description,
-        start: { dateTime: input.startUtc.toISOString() },
-        end: { dateTime: input.endUtc.toISOString() },
-        attendees: [{ email: input.attendeeEmail, displayName: input.attendeeName }],
-        reminders: { useDefault: true },
-      }),
+      body: JSON.stringify(body),
     })
     if (!res.ok) {
-      console.warn("[calendar] events.insert failed", res.status)
+      const body = await res.text().catch(() => "")
+      console.warn("[calendar] events.insert failed", res.status, body)
       return null
     }
-    const data = (await res.json()) as { id: string }
-    return data.id
+    const data = (await res.json()) as {
+      id: string
+      hangoutLink?: string
+      conferenceData?: { entryPoints?: Array<{ entryPointType: string; uri: string }> }
+    }
+    const meetingUrl =
+      data.hangoutLink ??
+      data.conferenceData?.entryPoints?.find((e) => e.entryPointType === "video")
+        ?.uri ??
+      null
+    return { id: data.id, meetingUrl }
   } catch (err) {
     console.warn("[calendar] events.insert errored", err)
     return null
@@ -190,7 +238,19 @@ export async function deleteCalendarEvent(
 export async function isGoogleCalendarConnected(userId: string): Promise<boolean> {
   const account = await prisma.account.findFirst({
     where: { userId, provider: "google" },
-    select: { refresh_token: true },
+    select: { refresh_token: true, scope: true },
   })
-  return !!account?.refresh_token
+  return !!account?.refresh_token && hasCalendarScope(account.scope)
+}
+
+/**
+ * Returns true if the user has any Google account linked, regardless of whether
+ * the calendar scope was granted. Used to show "Reconnect" vs "Connect" in Settings.
+ */
+export async function isGoogleLinked(userId: string): Promise<boolean> {
+  const account = await prisma.account.findFirst({
+    where: { userId, provider: "google" },
+    select: { id: true },
+  })
+  return !!account
 }

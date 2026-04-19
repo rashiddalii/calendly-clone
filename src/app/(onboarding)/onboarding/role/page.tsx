@@ -10,14 +10,16 @@ export default async function OnboardingRolePage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { onboardingCompleted: true },
+    select: { onboardingCompleted: true, onboardingData: true },
   })
   if (user?.onboardingCompleted) redirect("/events")
+
+  const data = (user?.onboardingData ?? {}) as Record<string, unknown>
 
   return (
     <OnboardingShell step={2}>
       <div className="mx-auto w-full max-w-2xl">
-        <WizardStep2 />
+        <WizardStep2 initialRole={(data.role as string) ?? null} />
       </div>
     </OnboardingShell>
   )

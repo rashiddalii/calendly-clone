@@ -134,13 +134,17 @@ export async function saveOnboardingStep2Action(role: string): Promise<
   redirect("/onboarding/calendars")
 }
 
-/** Step 3 — calendar preferences (UI is mostly informational) */
-export async function saveOnboardingStep3Action(): Promise<never> {
+/** Step 3 — calendar preferences */
+export async function saveOnboardingStep3Action(data?: {
+  calendarProvider?: string | null
+  calendarToAddMeetings?: string | null
+}): Promise<never> {
   const userId = await requireUserId()
   const current = await readOnboardingDataJson(userId)
   const onboardingData = mergeOnboardingJson(current, {
     calendarsStepCompleted: true,
-    calendarConflictCheck: true,
+    calendarProvider: data?.calendarProvider ?? null,
+    calendarToAddMeetings: data?.calendarToAddMeetings ?? null,
   })
   await writeOnboardingDataJson(userId, onboardingData)
 
@@ -204,7 +208,41 @@ export async function finalizeOnboardingAction(meetingLocation: string): Promise
   })
   await writeOnboardingDataJson(userId, onboardingData)
 
+  // Seed a default event type for new users if they don't have one yet
+  const existingCount = await prisma.eventType.count({
+    where: { userId, deletedAt: null },
+  })
+  if (existingCount === 0) {
+    await prisma.eventType.create({
+      data: {
+        userId,
+        title: "30 Minute Meeting",
+        slug: "30min",
+        description: "A quick 30-minute meeting. Pick a time that works for you.",
+        duration: 30,
+        color: "#006bff",
+        bufferBefore: 0,
+        bufferAfter: 0,
+        minNotice: 240,
+        maxDaysInFuture: 60,
+        isActive: true,
+      },
+    })
+  }
+
   redirect("/events")
+}
+
+/** Mark that the user has dismissed the first-time events guide */
+export async function markEventsGuideSeenAction(): Promise<void> {
+  try {
+    const userId = await requireUserId()
+    const current = await readOnboardingDataJson(userId)
+    const onboardingData = mergeOnboardingJson(current, { hasSeenEventsGuide: true })
+    await writeOnboardingDataJson(userId, onboardingData)
+  } catch {
+    // fire-and-forget — swallow errors silently
+  }
 }
 
 /** Legacy — used if schedule editor still calls finish directly */

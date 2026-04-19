@@ -10,14 +10,16 @@ export default async function OnboardingLocationPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { onboardingCompleted: true },
+    select: { onboardingCompleted: true, onboardingData: true },
   })
   if (user?.onboardingCompleted) redirect("/events")
+
+  const data = (user?.onboardingData ?? {}) as Record<string, unknown>
 
   return (
     <OnboardingShell step={5}>
       <div className="mx-auto w-full max-w-2xl">
-        <WizardStep5 />
+        <WizardStep5 initialLocation={(data.meetingLocation as string) ?? null} />
       </div>
     </OnboardingShell>
   )

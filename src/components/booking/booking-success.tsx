@@ -1,185 +1,164 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { formatInTimeZone } from "date-fns-tz"
-import { format } from "date-fns"
-import type { PublicEventTypeView, TimeSlot } from "@/types"
+import Link from "next/link";
+import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+import {
+  CalendarDays,
+  CheckCircle2,
+  ExternalLink,
+  Globe2,
+  User,
+  Video,
+} from "lucide-react";
+import { FluidCornerBadge } from "@/components/booking/fluid-corner-badge";
+import { dateFnsFormatFor, timeFnsFormatFor } from "@/lib/utils/format";
+import type { PublicEventTypeView, TimeSlot } from "@/types";
 
 interface BookingSuccessProps {
-  eventType: PublicEventTypeView
-  slot: TimeSlot
-  bookerTimezone: string
-  bookerName: string
+  eventType: PublicEventTypeView;
+  slot: TimeSlot;
+  bookerTimezone: string;
+  bookerName: string;
+  isAuthenticated: boolean;
+  invitationSearchFrom: string;
 }
 
-/**
- * Format a Date to Google Calendar's compact UTC format: `20240315T090000Z`
- */
-function toGCalDate(isoUtc: string): string {
-  const d = new Date(isoUtc)
-  const y = d.getUTCFullYear()
-  const mo = String(d.getUTCMonth() + 1).padStart(2, "0")
-  const day = String(d.getUTCDate()).padStart(2, "0")
-  const h = String(d.getUTCHours()).padStart(2, "0")
-  const mi = String(d.getUTCMinutes()).padStart(2, "0")
-  const s = String(d.getUTCSeconds()).padStart(2, "0")
-  return `${y}${mo}${day}T${h}${mi}${s}Z`
+function escapeGmailSearchValue(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+function gmailFromTerm(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (/[\s()[\]{}"]/.test(trimmed)) {
+    return `from:"${escapeGmailSearchValue(trimmed)}"`;
+  }
+  return `from:${trimmed}`;
+}
+
+function buildGmailSearchUrl(fromAddress: string, hostName: string): string {
+  const fromTerms = [
+    gmailFromTerm(fromAddress),
+    gmailFromTerm(`${hostName} (via Fluid)`),
+    gmailFromTerm("Fluid"),
+  ].filter(Boolean);
+  const query = `{${fromTerms.join(" ")}} in:anywhere newer_than:1d`;
+  return `https://mail.google.com/mail/u/0/#search/${encodeURIComponent(query)}`;
 }
 
 export function BookingSuccess({
   eventType,
   slot,
   bookerTimezone,
-  bookerName,
+  isAuthenticated,
+  invitationSearchFrom,
 }: BookingSuccessProps) {
-  const slotDate = new Date(slot.startUtc)
-
+  const slotDate = new Date(slot.startUtc);
+  const dateFmt = `EEEE, ${dateFnsFormatFor(eventType.host.dateFormat)}`;
+  const timeFmt = timeFnsFormatFor(eventType.host.timeFormat);
   const dateLabel = format(
     new Date(
-      formatInTimeZone(slotDate, bookerTimezone, "yyyy-MM-dd") + "T12:00:00",
+      formatInTimeZone(slotDate, bookerTimezone, "yyyy-MM-dd") + "T12:00:00"
     ),
-    "EEEE, MMMM d, yyyy",
-  )
-  const startLabel = formatInTimeZone(slotDate, bookerTimezone, "h:mm a")
+    dateFmt
+  );
+  const startLabel = formatInTimeZone(slotDate, bookerTimezone, timeFmt);
   const endLabel = formatInTimeZone(
     new Date(slot.endUtc),
     bookerTimezone,
-    "h:mm a",
-  )
+    timeFmt
+  );
 
-  // Google Calendar URL
-  const gcalTitle = encodeURIComponent(eventType.title)
-  const gcalDates = `${toGCalDate(slot.startUtc)}/${toGCalDate(slot.endUtc)}`
-  const gcalDetails = encodeURIComponent(
-    `Meeting with ${eventType.host.name ?? eventType.host.username}`,
-  )
-  const gcalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${gcalTitle}&dates=${gcalDates}&details=${gcalDetails}`
-
-  const hostName = eventType.host.name ?? eventType.host.username ?? "the host"
-  const username = eventType.host.username ?? ""
+  const hostName = eventType.host.name ?? eventType.host.username ?? "the host";
+  const timeRange = `${startLabel} - ${endLabel}, ${dateLabel}`;
+  const invitationUrl = buildGmailSearchUrl(invitationSearchFrom, hostName);
 
   return (
-    <div className="flex w-full max-w-lg flex-col items-center py-12 text-center">
-      {/* Animated checkmark */}
-      <div
-        className="mb-8 flex h-20 w-20 items-center justify-center rounded-full"
-        style={{ background: "linear-gradient(135deg, #4a4bd7, #7073ff)" }}
-        aria-hidden="true"
-      >
-        <svg
-          className="h-10 w-10 text-[#fbf7ff]"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2.5}
-            d="M5 13l4 4L19 7"
-            style={{
-              strokeDasharray: 30,
-              strokeDashoffset: 0,
-              animation: "draw-check 0.5s ease-out forwards",
-            }}
-          />
-        </svg>
-      </div>
-
-      <style>{`
-        @keyframes draw-check {
-          from { stroke-dashoffset: 30; }
-          to { stroke-dashoffset: 0; }
-        }
-      `}</style>
-
-      <h1 className="font-heading text-2xl font-semibold text-[#32323b]">
-        You&apos;re booked, {bookerName.split(" ")[0]}!
-      </h1>
-      <p className="mt-2 text-sm text-[#5f5e68]">
-        A confirmation will be sent to your email.
-      </p>
-
-      {/* Meeting details card */}
-      <div className="mt-8 w-full rounded-[1rem] bg-[#ffffff] p-6 text-left">
-        <div className="mb-4 flex items-start gap-2">
-          <div
-            className="mt-1 h-3 w-3 shrink-0 rounded-full"
-            style={{ backgroundColor: eventType.color }}
+    <section className="relative w-full max-w-[66rem] overflow-hidden rounded-[1rem] bg-white px-5 py-8 shadow-[0_18px_50px_rgba(28,43,75,0.08)] ring-1 ring-[#9dafc5]/20 sm:px-8 lg:px-10">
+      <FluidCornerBadge />
+      <div className="mx-auto flex max-w-xl flex-col items-center text-center">
+        <div className="mb-3 flex items-center gap-3">
+          <CheckCircle2
+            className="h-7 w-7 fill-[#0b8f6a] text-white"
             aria-hidden="true"
           />
-          <h2 className="font-heading text-base font-semibold text-[#32323b]">
-            {eventType.title}
-          </h2>
+          <h1 className="font-heading text-2xl font-bold tracking-tight text-[#1c2b4b]">
+            You are scheduled
+          </h1>
         </div>
+        <p className="text-sm text-[#1c2b4b]">
+          A calendar invitation has been sent to your email address.
+        </p>
 
-        <dl className="space-y-3">
-          <div className="flex gap-3">
-            <dt className="w-16 shrink-0 text-xs font-medium text-[#5f5e68]">
-              Host
-            </dt>
-            <dd className="text-sm text-[#32323b]">{hostName}</dd>
-          </div>
-          <div className="flex gap-3">
-            <dt className="w-16 shrink-0 text-xs font-medium text-[#5f5e68]">
-              Date
-            </dt>
-            <dd className="text-sm text-[#32323b]">{dateLabel}</dd>
-          </div>
-          <div className="flex gap-3">
-            <dt className="w-16 shrink-0 text-xs font-medium text-[#5f5e68]">
-              Time
-            </dt>
-            <dd className="text-sm text-[#32323b]">
-              {startLabel} – {endLabel}
-            </dd>
-          </div>
-          <div className="flex gap-3">
-            <dt className="w-16 shrink-0 text-xs font-medium text-[#5f5e68]">
-              Duration
-            </dt>
-            <dd className="text-sm text-[#32323b]">{eventType.duration} minutes</dd>
-          </div>
-          <div className="flex gap-3">
-            <dt className="w-16 shrink-0 text-xs font-medium text-[#5f5e68]">
-              Timezone
-            </dt>
-            <dd className="text-sm text-[#32323b]">{bookerTimezone}</dd>
-          </div>
-        </dl>
-      </div>
-
-      {/* Actions */}
-      <div className="mt-5 flex w-full flex-col gap-3 sm:flex-row">
         <a
-          href={gcalUrl}
+          href={invitationUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-1 items-center justify-center gap-2 rounded-[0.75rem] px-5 py-3 text-sm font-semibold text-[#fbf7ff] transition-all duration-150 hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(74,75,215,0.4)] focus-visible:ring-offset-2"
-          style={{ background: "linear-gradient(135deg, #4a4bd7, #7073ff)" }}
-          aria-label="Add this event to Google Calendar"
+          className="mt-5 inline-flex h-touch cursor-pointer items-center justify-center gap-2 rounded-full border border-[#9dafc5]/45 bg-white px-4 text-sm font-semibold text-[#1c2b4b] no-underline transition-colors hover:bg-[#f0f5ff] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#006bff]/30"
         >
-          <svg
-            className="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            aria-hidden="true"
-          >
-            <path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.89 2 3 2.9 3 4v16c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H5V8h14v13z" />
-            <path d="M7 10h5v5H7z" />
-          </svg>
-          Add to Google Calendar
+          Open invitation
+          <ExternalLink className="h-4 w-4" aria-hidden="true" />
         </a>
 
-        {username && (
-          <Link
-            href={`/${username}`}
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-[0.75rem] bg-[#f6f2fb] px-5 py-3 text-sm font-medium text-[#32323b] transition-colors duration-150 hover:bg-[#eae7f1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(74,75,215,0.3)]"
-          >
-            Book another time
-          </Link>
+        <div className="mt-7 w-full rounded-[0.75rem] bg-white p-5 text-left shadow-[inset_0_0_0_1px_rgba(157,175,197,0.36)]">
+          <h2 className="font-heading text-xl font-bold text-[#667085]">
+            {eventType.title}
+          </h2>
+          <div className="mt-4 space-y-3">
+            <div className="flex gap-3">
+              <User className="mt-0.5 h-5 w-5 shrink-0 text-[#737373]" />
+              <p className="text-sm font-semibold text-[#667085]">{hostName}</p>
+            </div>
+            <div className="flex gap-3">
+              <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-[#737373]" />
+              <p className="text-sm font-semibold text-[#667085]">
+                {timeRange}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Globe2 className="mt-0.5 h-5 w-5 shrink-0 text-[#737373]" />
+              <p className="text-sm font-semibold text-[#667085]">
+                {bookerTimezone}
+              </p>
+            </div>
+            <div className="flex gap-3">
+              <Video className="mt-0.5 h-5 w-5 shrink-0 text-[#737373]" />
+              <p className="text-sm font-semibold text-[#667085]">
+                Web conferencing details to follow.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {!isAuthenticated && (
+          <div className="mt-7 w-full border-t border-[#9dafc5]/25 pt-6 text-center">
+            <h2 className="font-heading text-lg font-bold text-[#1c2b4b]">
+              Schedule your own meetings with Fluid for free
+            </h2>
+            <p className="mt-3 text-sm text-[#4b5a6d]">
+              Eliminate the back and forth when finding time.
+            </p>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/signup"
+                className="inline-flex h-touch flex-1 cursor-pointer items-center justify-center rounded-full px-5 text-sm font-semibold text-white no-underline transition-all hover:brightness-95"
+                style={{
+                  background: "linear-gradient(135deg, #006bff, #4d94ff)",
+                }}
+              >
+                Sign up for free
+              </Link>
+              <Link
+                href="/signup"
+                className="inline-flex h-touch flex-1 cursor-pointer items-center justify-center rounded-full border border-[#9dafc5]/45 bg-white px-5 text-sm font-semibold text-[#1c2b4b] no-underline transition-colors hover:bg-[#f0f5ff]"
+              >
+                Create account
+              </Link>
+            </div>
+          </div>
         )}
       </div>
-    </div>
-  )
+    </section>
+  );
 }

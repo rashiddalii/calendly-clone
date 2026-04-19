@@ -38,20 +38,20 @@ const mainNavItems = [
     icon: Clock,
     disabled: false,
   },
-  { href: "/events", label: "Contacts", icon: Users, disabled: true },
-  { href: "/events", label: "Workflows", icon: Workflow, disabled: true },
   {
-    href: "/events",
+    href: "/integrations",
     label: "Integrations & apps",
     icon: Puzzle,
-    disabled: true,
+    disabled: false,
   },
+  { href: "/events", label: "Contacts", icon: Users, disabled: true },
+  { href: "/events", label: "Workflows", icon: Workflow, disabled: true },
   { href: "/events", label: "Routing", icon: Waypoints, disabled: true },
 ] as const
 
 const footerNavItems = [
   { href: "/dashboard", label: "Analytics", icon: LayoutDashboard },
-  { href: "/settings", label: "Admin center", icon: Settings },
+  { href: "/account/profile", label: "Account settings", icon: Settings },
 ] as const
 
 interface SidebarNavProps {

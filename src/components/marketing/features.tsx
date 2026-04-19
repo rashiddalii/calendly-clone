@@ -28,7 +28,7 @@ export function Features() {
     <section
       id="features"
       style={{
-        backgroundColor: "#f6f2fb",
+        backgroundColor: "#f0f5ff",
         padding: "6rem 1.5rem",
       }}
     >
@@ -42,7 +42,7 @@ export function Features() {
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: "0.8125rem",
               fontWeight: 600,
-              color: "#4a4bd7",
+              color: "#006bff",
               textTransform: "uppercase",
               letterSpacing: "0.09em",
               marginBottom: "0.875rem",
@@ -55,7 +55,7 @@ export function Features() {
               fontFamily: "var(--font-manrope), sans-serif",
               fontWeight: 700,
               fontSize: "clamp(1.75rem, 3vw, 2.375rem)",
-              color: "#32323b",
+              color: "#1c2b4b",
               letterSpacing: "-0.03em",
               margin: "0 0 0.875rem",
               lineHeight: "1.18",
@@ -69,7 +69,7 @@ export function Features() {
             style={{
               fontFamily: "var(--font-inter), sans-serif",
               fontSize: "1.0625rem",
-              color: "#5f5e68",
+              color: "#4b5a6d",
               maxWidth: "440px",
               margin: "0 auto",
               lineHeight: "1.65",
@@ -106,14 +106,14 @@ export function Features() {
                   width: "48px",
                   height: "48px",
                   borderRadius: "0.75rem",
-                  backgroundColor: "#e2e0f9",
+                  backgroundColor: "#d9e8ff",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   flexShrink: 0,
                 }}
               >
-                <Icon size={22} color="#4a4bd7" strokeWidth={2} aria-hidden="true" />
+                <Icon size={22} color="#006bff" strokeWidth={2} aria-hidden="true" />
               </div>
 
               <div>
@@ -122,7 +122,7 @@ export function Features() {
                     fontFamily: "var(--font-manrope), sans-serif",
                     fontWeight: 600,
                     fontSize: "1.125rem",
-                    color: "#32323b",
+                    color: "#1c2b4b",
                     margin: "0 0 0.5rem",
                     letterSpacing: "-0.015em",
                   }}
@@ -133,7 +133,7 @@ export function Features() {
                   style={{
                     fontFamily: "var(--font-inter), sans-serif",
                     fontSize: "0.9375rem",
-                    color: "#5f5e68",
+                    color: "#4b5a6d",
                     lineHeight: "1.65",
                     margin: 0,
                   }}

@@ -1,3 +1,7 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 // Brand logo SVG components — simplified but clearly identifiable by color + shape
 
 function DropboxLogo() {
@@ -129,12 +133,34 @@ const COMPANIES = [
 ];
 
 export function SocialProof() {
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+          obs.disconnect();
+        }
+      },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
   return (
     <section
+      ref={ref}
       style={{
         backgroundColor: "#ffffff",
-        padding: "3rem 0",
         overflow: "hidden",
+        opacity: visible ? 1 : 0,
+        transform: visible ? "scale(1) translateY(0)" : "scale(0.97) translateY(18px)",
+        transition: "opacity 0.65s cubic-bezier(0.4,0,0.2,1), transform 0.65s cubic-bezier(0.4,0,0.2,1)",
       }}
     >
       <style>{`
@@ -151,6 +177,11 @@ export function SocialProof() {
         }
         .fluid-marquee-track:hover {
           animation-play-state: paused;
+        }
+        .fluid-marquee-viewport {
+          contain: layout paint;
+          max-width: 100vw;
+          overflow: hidden;
         }
       `}</style>
 
@@ -171,7 +202,7 @@ export function SocialProof() {
       </div>
 
       {/* Scrolling marquee — two copies for seamless loop */}
-      <div style={{ overflow: "hidden" }}>
+      <div className="fluid-marquee-viewport">
         <div className="fluid-marquee-track" aria-hidden="true">
           {[...COMPANIES, ...COMPANIES].map(({ name, Logo }, i) => (
             <div
@@ -184,12 +215,14 @@ export function SocialProof() {
                 flexShrink: 0,
               }}
             >
-              <Logo />
+              <span style={{ display: "inline-flex", transform: "scale(1.35)", transformOrigin: "center" }}>
+                <Logo />
+              </span>
               <span
                 style={{
                   fontFamily: "var(--font-manrope), sans-serif",
                   fontWeight: 700,
-                  fontSize: "0.9375rem",
+                  fontSize: "1.075rem",
                   color: "#00213F",
                   whiteSpace: "nowrap",
                   letterSpacing: "-0.01em",

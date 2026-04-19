@@ -96,22 +96,22 @@ export const metadata = {
 
 export default function PricingPage() {
   return (
-    <div style={{ backgroundColor: "#fcf8fe" }}>
+    <div style={{ backgroundColor: "#ffffff" }}>
       {/* Hero */}
       <section className="px-6 pb-8 pt-20 text-center">
         <p
           className="mb-4 inline-block rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase"
-          style={{ backgroundColor: "#e2e0f9", color: "#4a4bd7" }}
+          style={{ backgroundColor: "#d9e8ff", color: "#006bff" }}
         >
           Pricing
         </p>
         <h1
           className="mb-4 text-4xl font-bold leading-tight md:text-5xl"
-          style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+          style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
         >
           Scheduling that scales with you
         </h1>
-        <p className="mx-auto max-w-xl text-lg" style={{ color: "#5f5e68" }}>
+        <p className="mx-auto max-w-xl text-lg" style={{ color: "#4b5a6d" }}>
           Start free, no credit card needed. Upgrade when you need more power.
           Cancel any time.
         </p>
@@ -125,7 +125,7 @@ export default function PricingPage() {
               key={plan.name}
               className="relative flex flex-col rounded-2xl p-6"
               style={{
-                backgroundColor: plan.highlighted ? "#4a4bd7" : "#ffffff",
+                backgroundColor: plan.highlighted ? "#006bff" : "#ffffff",
                 ...(plan.highlighted
                   ? {}
                   : { boxShadow: "0 4px 16px rgba(50,50,59,0.04)" }),
@@ -134,7 +134,7 @@ export default function PricingPage() {
               {plan.highlighted && (
                 <div
                   className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-semibold"
-                  style={{ backgroundColor: "#7073ff", color: "#fbf7ff" }}
+                  style={{ backgroundColor: "#4d94ff", color: "#ffffff" }}
                 >
                   Most popular
                 </div>
@@ -144,7 +144,7 @@ export default function PricingPage() {
                 <h2
                   className="mb-1 text-lg font-semibold"
                   style={{
-                    color: plan.highlighted ? "#fbf7ff" : "#32323b",
+                    color: plan.highlighted ? "#ffffff" : "#1c2b4b",
                     fontFamily: "var(--font-heading)",
                   }}
                 >
@@ -155,7 +155,7 @@ export default function PricingPage() {
                   style={{
                     color: plan.highlighted
                       ? "rgba(251,247,255,0.75)"
-                      : "#5f5e68",
+                      : "#4b5a6d",
                   }}
                 >
                   {plan.description}
@@ -168,7 +168,7 @@ export default function PricingPage() {
                     <span
                       className="text-4xl font-bold"
                       style={{
-                        color: plan.highlighted ? "#fbf7ff" : "#32323b",
+                        color: plan.highlighted ? "#ffffff" : "#1c2b4b",
                         fontFamily: "var(--font-heading)",
                       }}
                     >
@@ -179,7 +179,7 @@ export default function PricingPage() {
                       style={{
                         color: plan.highlighted
                           ? "rgba(251,247,255,0.65)"
-                          : "#7b7984",
+                          : "#6b7d94",
                       }}
                     >
                       /seat/mo
@@ -189,7 +189,7 @@ export default function PricingPage() {
                   <span
                     className="text-3xl font-bold"
                     style={{
-                      color: plan.highlighted ? "#fbf7ff" : "#32323b",
+                      color: plan.highlighted ? "#ffffff" : "#1c2b4b",
                       fontFamily: "var(--font-heading)",
                     }}
                   >
@@ -200,13 +200,13 @@ export default function PricingPage() {
 
               <Link
                 href={plan.ctaHref}
-                className="mb-6 flex items-center justify-center rounded-xl py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
+                className="mb-6 flex min-h-11 items-center justify-center rounded-xl py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
                 style={
                   plan.highlighted
-                    ? { backgroundColor: "#ffffff", color: "#4a4bd7" }
+                    ? { backgroundColor: "#ffffff", color: "#006bff" }
                     : {
-                        background: "linear-gradient(135deg, #4a4bd7, #7073ff)",
-                        color: "#fbf7ff",
+                        background: "linear-gradient(135deg, #006bff, #4d94ff)",
+                        color: "#ffffff",
                       }
                 }
               >
@@ -219,7 +219,7 @@ export default function PricingPage() {
                     <Check
                       className="mt-0.5 h-4 w-4 shrink-0"
                       style={{
-                        color: plan.highlighted ? "#a8f0c6" : "#4a4bd7",
+                        color: plan.highlighted ? "#a8f0c6" : "#006bff",
                       }}
                     />
                     <span
@@ -227,7 +227,7 @@ export default function PricingPage() {
                       style={{
                         color: plan.highlighted
                           ? "rgba(251,247,255,0.85)"
-                          : "#5f5e68",
+                          : "#4b5a6d",
                       }}
                     >
                       {feat}
@@ -246,7 +246,7 @@ export default function PricingPage() {
       >
         <h2
           className="mb-8 text-center text-2xl font-semibold"
-          style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+          style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
         >
           Frequently asked questions
         </h2>
@@ -259,11 +259,11 @@ export default function PricingPage() {
             >
               <h3
                 className="mb-2 font-semibold"
-                style={{ color: "#32323b" }}
+                style={{ color: "#1c2b4b" }}
               >
                 {faq.q}
               </h3>
-              <p className="text-sm" style={{ color: "#5f5e68" }}>
+              <p className="text-sm" style={{ color: "#4b5a6d" }}>
                 {faq.a}
               </p>
             </div>
@@ -274,11 +274,11 @@ export default function PricingPage() {
       {/* Bottom CTA */}
       <section
         className="mx-4 mb-16 rounded-3xl px-8 py-14 text-center md:mx-auto md:max-w-4xl"
-        style={{ background: "linear-gradient(135deg, #4a4bd7, #7073ff)" }}
+        style={{ background: "linear-gradient(135deg, #006bff, #4d94ff)" }}
       >
         <h2
           className="mb-3 text-3xl font-bold"
-          style={{ color: "#fbf7ff", fontFamily: "var(--font-heading)" }}
+          style={{ color: "#ffffff", fontFamily: "var(--font-heading)" }}
         >
           Ready to start scheduling smarter?
         </h2>
@@ -288,7 +288,7 @@ export default function PricingPage() {
         <Link
           href="/signup"
           className="inline-flex items-center gap-2 rounded-xl px-8 py-3 text-sm font-semibold transition-opacity hover:opacity-90"
-          style={{ backgroundColor: "#ffffff", color: "#4a4bd7" }}
+          style={{ backgroundColor: "#ffffff", color: "#006bff" }}
         >
           Get started free
         </Link>

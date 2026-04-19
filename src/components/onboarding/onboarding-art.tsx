@@ -98,11 +98,11 @@ function CalendarBlocksCard({ className }: { className?: string }) {
     >
       <div className="mb-2 flex gap-1">
         <div className="h-8 flex-1 rounded-md" style={{ backgroundColor: `${BLUE}44` }} />
-        <div className="h-8 flex-1 rounded-md bg-violet-200/80" />
+        <div className="h-8 flex-1 rounded-md bg-blue-200/80" />
         <div className="h-8 flex-1 rounded-md bg-sky-200/80" />
       </div>
       <div className="flex gap-1">
-        <div className="h-10 flex-1 rounded-md bg-indigo-200/70" />
+        <div className="h-10 flex-1 rounded-md bg-blue-200/70" />
         <div className="h-10 flex-1 rounded-md" style={{ backgroundColor: `${BLUE}55` }} />
       </div>
     </div>
@@ -149,7 +149,7 @@ function BookedCard({ className }: { className?: string }) {
       <div className="flex items-center gap-2">
         <div
           className="h-10 w-10 rounded-full"
-          style={{ background: `linear-gradient(135deg, #6366f1, ${BLUE})` }}
+          style={{ background: `linear-gradient(135deg, #006bff, ${BLUE})` }}
         />
         <div>
           <p className="text-xs font-bold text-[#0F172A]">Meeting booked!</p>
@@ -173,7 +173,7 @@ export function OnboardingArt({ step }: { step: 1 | 2 | 3 | 4 | 5 }) {
       {/* ambient shapes */}
       <Blob
         className="absolute -right-16 -top-20 h-72 w-72 opacity-[0.12]"
-        fill="#6366f1"
+        fill="#006bff"
       />
       <Blob
         className="absolute -bottom-24 -left-20 h-80 w-80 opacity-[0.15]"
@@ -183,7 +183,7 @@ export function OnboardingArt({ step }: { step: 1 | 2 | 3 | 4 | 5 }) {
       {step === 1 && (
         <>
           <div className="absolute right-[12%] top-[14%] h-24 w-24 rotate-12 rounded-3xl border-4 border-lime-400 bg-transparent" />
-          <div className="absolute bottom-[18%] left-[10%] h-28 w-28 rotate-[-8deg] bg-violet-600 opacity-90" style={{ clipPath: "polygon(30% 0%, 100% 25%, 100% 75%, 30% 100%, 0% 50%)" }} />
+          <div className="absolute bottom-[18%] left-[10%] h-28 w-28 rotate-[-8deg] bg-blue-600 opacity-90" style={{ clipPath: "polygon(30% 0%, 100% 25%, 100% 75%, 30% 100%, 0% 50%)" }} />
           <BookingPageCard className="left-1/2 top-1/2 w-56 -translate-x-1/2 -translate-y-1/2" />
         </>
       )}
@@ -193,29 +193,29 @@ export function OnboardingArt({ step }: { step: 1 | 2 | 3 | 4 | 5 }) {
           <svg className="absolute right-8 top-16 h-32 w-32 text-teal-400/40" viewBox="0 0 100 100" aria-hidden>
             <path fill="none" stroke="currentColor" strokeWidth="3" d="M10,50 Q50,10 90,50 T90,80" />
           </svg>
-          <div className="absolute bottom-12 right-[15%] h-40 w-40 rounded-full bg-indigo-900/90" />
+          <div className="absolute bottom-12 right-[15%] h-40 w-40 rounded-full bg-blue-900/90" />
           <ProfileStack className="left-[18%] top-[22%]" />
         </>
       )}
 
       {step === 3 && (
         <>
-          <div className="absolute right-[8%] top-[20%] h-48 w-48 rounded-full bg-violet-500/85" />
+          <div className="absolute right-[8%] top-[20%] h-48 w-48 rounded-full bg-blue-500/85" />
           <CalendarBlocksCard className="left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />
         </>
       )}
 
       {step === 4 && (
         <>
-          <div className="absolute bottom-[10%] right-[12%] h-36 w-36 rounded-full bg-violet-600/80" />
+          <div className="absolute bottom-[10%] right-[12%] h-36 w-36 rounded-full bg-blue-600/80" />
           <AvailabilityPreview className="left-[12%] top-[18%]" />
         </>
       )}
 
       {step === 5 && (
         <>
-          <div className="absolute left-[8%] top-[12%] h-32 w-32 rounded-full bg-purple-500/35" />
-          <div className="absolute bottom-[15%] right-[10%] h-28 w-28 rotate-6 rounded-2xl border-4 border-purple-400" />
+          <div className="absolute left-[8%] top-[12%] h-32 w-32 rounded-full bg-blue-500/35" />
+          <div className="absolute bottom-[15%] right-[10%] h-28 w-28 rotate-6 rounded-2xl border-4 border-blue-400" />
           <BookedCard className="left-1/2 top-[28%] -translate-x-1/2" />
         </>
       )}

@@ -4,7 +4,7 @@ export default function MarketingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div style={{ backgroundColor: "#fcf8fe", minHeight: "100vh" }}>
+    <div style={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
       {children}
     </div>
   );

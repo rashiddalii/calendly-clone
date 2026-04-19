@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
+  <!-- Rounded square bg -->
+  <rect width="40" height="40" rx="9" fill="#1055CC"/>
+
+  <!-- Stylised "A" built from two chevrons -->
+  <!-- Top chevron (thin, white) -->
+  <path d="M20 7 L34 28 H30 L20 12 L10 28 H6 Z" fill="white"/>
+
+  <!-- Crossbar cutout — creates the counter of the A -->
+  <rect x="11.5" y="22" width="17" height="3.5" rx="1.75" fill="#1055CC"/>
+</svg>

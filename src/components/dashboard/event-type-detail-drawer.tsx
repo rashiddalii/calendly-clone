@@ -1,10 +1,26 @@
 "use client"
 
 import Link from "next/link"
-import { ChevronDown, Eye } from "lucide-react"
+import { ChevronDown, Eye, Globe, MapPin, Phone } from "lucide-react"
 import type { EventType } from "@/generated/prisma/client"
 import { Dialog, DrawerContent, DialogTitle } from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
+import { GoogleMeetIcon, ZoomIcon, TeamsIcon } from "@/components/icons/brand"
+
+function locationDisplay(location: string): { label: string; detail: string; icon: React.ReactNode } {
+  const map: Record<string, { label: string; detail: string; icon: React.ReactNode }> = {
+    google_meet: { label: "Google Meet",       detail: "Auto-generated link sent to invitee", icon: <GoogleMeetIcon className="h-6 w-6 shrink-0" /> },
+    zoom:        { label: "Zoom",              detail: "Auto-generated link sent to invitee", icon: <ZoomIcon className="h-6 w-6 shrink-0" /> },
+    teams:       { label: "Microsoft Teams",   detail: "Auto-generated link sent to invitee", icon: <TeamsIcon className="h-6 w-6 shrink-0" /> },
+    phone:       { label: "Phone call",        detail: "Invitee provides their phone number",
+      icon: <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#D1FAE5]"><Phone className="h-3.5 w-3.5 text-[#059669]" /></span> },
+    in_person:   { label: "In person",         detail: "Address provided in confirmation",
+      icon: <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#FEF3C7]"><MapPin className="h-3.5 w-3.5 text-[#D97706]" /></span> },
+    other:       { label: "Custom link",       detail: "Custom meeting URL",
+      icon: <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-[#EDE9FE]"><Globe className="h-3.5 w-3.5 text-[#7C3AED]" /></span> },
+  }
+  return map[location] ?? { label: location, detail: "", icon: <GoogleMeetIcon className="h-6 w-6 shrink-0" /> }
+}
 
 function formatNoticeMinutes(mins: number): string {
   if (mins >= 1440) {
@@ -106,7 +122,18 @@ export function EventTypeDetailDrawer({
             <p>{eventType.duration} minutes</p>
           </AccordionRow>
           <AccordionRow title="Location">
-            <p>Video call (invitees receive your standard meeting link)</p>
+            {(() => {
+              const loc = locationDisplay(eventType.location ?? "google_meet")
+              return (
+                <div className="flex items-center gap-2">
+                  {loc.icon}
+                  <div>
+                    <span className="font-medium text-[#374151]">{loc.label}</span>
+                    {loc.detail && <span className="ml-1 text-[#6B7280]">, {loc.detail}</span>}
+                  </div>
+                </div>
+              )
+            })()}
           </AccordionRow>
           <AccordionRow title="Availability" defaultOpen>
             <p>

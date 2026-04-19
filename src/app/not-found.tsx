@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div
       className="flex min-h-screen flex-col items-center justify-center px-6 text-center"
-      style={{ backgroundColor: "#fcf8fe" }}
+      style={{ backgroundColor: "#ffffff" }}
     >
       {/* Logo */}
       <div
@@ -16,17 +16,17 @@ export default function NotFound() {
 
       <p
         className="mb-3 text-7xl font-bold"
-        style={{ color: "#4a4bd7", fontFamily: "var(--font-heading)" }}
+        style={{ color: "#006bff", fontFamily: "var(--font-heading)" }}
       >
         404
       </p>
       <h1
         className="mb-3 text-2xl font-semibold"
-        style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+        style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
       >
         Page not found
       </h1>
-      <p className="mb-8 max-w-sm text-base" style={{ color: "#5f5e68" }}>
+      <p className="mb-8 max-w-sm text-base" style={{ color: "#4b5a6d" }}>
         The page you&apos;re looking for doesn&apos;t exist or has been moved.
       </p>
 
@@ -35,8 +35,8 @@ export default function NotFound() {
           href="/"
           className="rounded-xl px-6 py-2.5 text-sm font-semibold transition-opacity hover:opacity-90"
           style={{
-            background: "linear-gradient(135deg, #4a4bd7, #7073ff)",
-            color: "#fbf7ff",
+            background: "linear-gradient(135deg, #006bff, #4d94ff)",
+            color: "#ffffff",
           }}
         >
           Go home
@@ -44,7 +44,7 @@ export default function NotFound() {
         <Link
           href="/dashboard"
           className="rounded-xl px-6 py-2.5 text-sm font-semibold transition-colors"
-          style={{ backgroundColor: "#f0ecf6", color: "#4a4bd7" }}
+          style={{ backgroundColor: "#e5edff", color: "#006bff" }}
         >
           Dashboard
         </Link>

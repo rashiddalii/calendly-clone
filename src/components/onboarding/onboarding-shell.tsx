@@ -1,6 +1,6 @@
-import Link from "next/link"
 import type { ReactNode } from "react"
 import { OnboardingArt } from "@/components/onboarding/onboarding-art"
+import { FluidLogo } from "@/components/shared/fluid-logo"
 
 const BLUE = "#006BFF"
 
@@ -17,30 +17,7 @@ export function OnboardingShell({
     <div className="flex min-h-screen flex-col bg-white text-[#0F172A]">
       <header className="relative flex h-[72px] shrink-0 items-center border-b border-[#E5E7EB] px-4 sm:px-8">
         <div className="flex flex-1 items-center">
-          <Link
-            href="/"
-            className="flex items-center gap-2 no-underline"
-            aria-label="Fluid home"
-          >
-            <span
-              className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg"
-              style={{ backgroundColor: "#1e3461" }}
-            >
-              <img
-                src="/logo-fluid-icon.svg"
-                alt=""
-                width={22}
-                height={22}
-                className="object-contain"
-              />
-            </span>
-            <span
-              className="font-[family-name:var(--font-manrope)] text-xl font-bold tracking-tight"
-              style={{ color: BLUE }}
-            >
-              Fluid
-            </span>
-          </Link>
+          <FluidLogo />
         </div>
 
         <div className="absolute left-1/2 top-1/2 hidden w-[min(100%,280px)] -translate-x-1/2 -translate-y-1/2 md:block">

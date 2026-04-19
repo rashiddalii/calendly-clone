@@ -1,9 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useCallback } from "react"
-import { toast } from "sonner"
-import { handleSignOut } from "@/lib/actions/auth"
+import Link from "next/link";
+import { handleSignOut } from "@/lib/actions/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,13 +10,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BookOpen,
   ChevronDown,
@@ -26,48 +20,31 @@ import {
   HelpCircle,
   Link2,
   LogOut,
-  MoreHorizontal,
   Star,
   User,
-} from "lucide-react"
+} from "lucide-react";
 
 interface UserMenuProps {
-  name?: string | null
-  email?: string | null
-  image?: string | null
-  username?: string | null
-  marketingHref: string
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  username?: string | null;
+  marketingHref: string;
 }
 
 function getInitials(name?: string | null, email?: string | null): string {
   if (name) {
-    const parts = name.trim().split(" ")
+    const parts = name.trim().split(" ");
     if (parts.length >= 2) {
-      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
-    return name.slice(0, 2).toUpperCase()
+    return name.slice(0, 2).toUpperCase();
   }
-  if (email) return email.slice(0, 2).toUpperCase()
-  return "??"
+  if (email) return email.slice(0, 2).toUpperCase();
+  return "??";
 }
 
-export function UserMenu({
-  name,
-  email,
-  image,
-  username,
-  marketingHref,
-}: UserMenuProps) {
-  const copyMyLink = useCallback(() => {
-    if (!username) {
-      toast.error("Set a username in Settings to get a booking link.")
-      return
-    }
-    const url = `${window.location.origin}/${username}`
-    void navigator.clipboard.writeText(url)
-    toast.success("Your link copied")
-  }, [username])
-
+export function UserMenu({ name, email, image, marketingHref }: UserMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -75,7 +52,7 @@ export function UserMenu({
           <Button
             type="button"
             variant="ghost"
-            className="h-auto min-h-10 gap-1 rounded-full px-1 py-0.5 pr-1.5 shadow-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30 focus-visible:ring-offset-2"
+            className="h-touch min-w-11 gap-1 rounded-full px-1 py-0.5 pr-1.5 shadow-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30 focus-visible:ring-offset-2"
           />
         }
       >
@@ -118,7 +95,7 @@ export function UserMenu({
           </DropdownMenuLabel>
           <DropdownMenuItem>
             <Link
-              href="/settings"
+              href="/account/profile"
               className="flex w-full items-center gap-2 text-[#111827] no-underline"
             >
               <User className="h-4 w-4 text-[#6B7280]" />
@@ -127,26 +104,20 @@ export function UserMenu({
           </DropdownMenuItem>
           <DropdownMenuItem>
             <Link
-              href="/settings"
+              href="/account/branding"
               className="flex w-full items-center gap-2 text-[#111827] no-underline"
             >
               <Star className="h-4 w-4 text-[#6B7280]" />
               Branding
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={copyMyLink}>
-            <span className="flex items-center gap-2">
-              <Link2 className="h-4 w-4 text-[#6B7280]" />
-              My link
-            </span>
-          </DropdownMenuItem>
           <DropdownMenuItem>
             <Link
-              href="/settings"
+              href="/account/my-link"
               className="flex w-full items-center gap-2 text-[#111827] no-underline"
             >
-              <MoreHorizontal className="h-4 w-4 text-[#6B7280]" />
-              All settings
+              <Link2 className="h-4 w-4 text-[#6B7280]" />
+              My link
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -183,10 +154,7 @@ export function UserMenu({
           </DropdownMenuItem>
           <DropdownMenuItem variant="destructive">
             <form action={handleSignOut} className="w-full">
-              <button
-                type="submit"
-                className="flex w-full items-center gap-2"
-              >
+              <button type="submit" className="flex w-full items-center gap-2">
                 <LogOut className="h-4 w-4" />
                 Log out
               </button>
@@ -195,5 +163,5 @@ export function UserMenu({
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

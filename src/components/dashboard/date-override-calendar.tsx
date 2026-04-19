@@ -198,7 +198,7 @@ export function DateOverrideCalendar({
                   </p>
                   <p className="text-xs text-[#6B7280]">
                     {isBlock
-                      ? "Blocked — no bookings accepted"
+                      ? "Blocked: no bookings accepted"
                       : `${o.startTime} – ${o.endTime}`}
                   </p>
                 </div>

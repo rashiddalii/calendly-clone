@@ -1,11 +1,12 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
-import { ExternalLink, MoreVertical, Search } from "lucide-react"
+import { ExternalLink, MoreVertical, Search, Sparkles, X } from "lucide-react"
 import type { EventType } from "@/generated/prisma/client"
 import { SchedulingEventRow } from "@/components/dashboard/scheduling-event-row"
 import { EventTypeDetailDrawer } from "@/components/dashboard/event-type-detail-drawer"
+import { markEventsGuideSeenAction } from "@/lib/actions/onboarding"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +34,7 @@ export function SchedulingEventTypesSection({
   userEmail,
   userImage,
   scheduleSummaryLine,
+  isFirstTime = false,
 }: {
   eventTypes: EventType[]
   username: string | null
@@ -40,9 +42,17 @@ export function SchedulingEventTypesSection({
   userEmail: string | null
   userImage: string | null
   scheduleSummaryLine: string
+  isFirstTime?: boolean
 }) {
   const [query, setQuery] = useState("")
   const [detailEvent, setDetailEvent] = useState<EventType | null>(null)
+  const [showBanner, setShowBanner] = useState(isFirstTime)
+
+  useEffect(() => {
+    if (isFirstTime) {
+      markEventsGuideSeenAction().catch(() => {})
+    }
+  }, [isFirstTime])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -66,6 +76,53 @@ export function SchedulingEventTypesSection({
         username={username}
         scheduleSummaryLine={scheduleSummaryLine}
       />
+
+      {/* First-time welcome banner */}
+      {showBanner && (
+        <div className="flex items-start gap-3 rounded-xl border border-[#BFDBFE] bg-[#EFF6FF] p-4">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#006BFF]/10">
+            <Sparkles className="h-4 w-4 text-[#006BFF]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-[#1e3461]">
+              Your first event type is ready to share!
+            </p>
+            <p className="mt-0.5 text-sm text-[#374151]">
+              Copy your booking link and share it anywhere: email, LinkedIn, or
+              your website, to start accepting meetings.
+            </p>
+            <div className="mt-3 flex flex-col gap-2 text-xs text-[#6B7280]">
+              <span className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#006BFF] text-[10px] font-bold text-white">
+                  1
+                </span>
+                Click&nbsp;<strong className="text-[#374151]">Copy link</strong>&nbsp;on the event below
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#006BFF] text-[10px] font-bold text-white">
+                  2
+                </span>
+                Share it with anyone to book time with you
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#006BFF] text-[10px] font-bold text-white">
+                  3
+                </span>
+                View confirmed bookings under&nbsp;<strong className="text-[#374151]">Meetings</strong>
+              </span>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowBanner(false)}
+            className="inline-flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-md text-[#6B7280] transition-colors hover:bg-[#DBEAFE] hover:text-[#1e3461]"
+            aria-label="Dismiss"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
         <input
@@ -104,14 +161,14 @@ export function SchedulingEventTypesSection({
             </Link>
           ) : (
             <Link
-              href="/settings"
+              href="/account/profile"
               className="text-sm font-medium text-[#006BFF] hover:underline"
             >
               Set username for landing page
             </Link>
           )}
           <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex size-8 items-center justify-center rounded-md text-[#6B7280] outline-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30">
+            <DropdownMenuTrigger className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-[#6B7280] outline-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30">
               <MoreVertical className="h-4 w-4" />
               <span className="sr-only">Host options</span>
             </DropdownMenuTrigger>
@@ -139,7 +196,7 @@ export function SchedulingEventTypesSection({
           {eventTypes.length === 0 && (
             <Link
               href="/events/new"
-              className="mt-5 inline-flex h-10 items-center justify-center rounded-lg bg-[#006BFF] px-5 text-sm font-semibold text-white hover:bg-[#005FDB]"
+              className="mt-5 inline-flex h-10 cursor-pointer items-center justify-center rounded-lg bg-[#006BFF] px-5 text-sm font-semibold text-white hover:bg-[#005FDB]"
             >
               Create event type
             </Link>

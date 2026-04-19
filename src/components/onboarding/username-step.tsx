@@ -29,21 +29,21 @@ export function UsernameStep({ defaultUsername, appUrl }: UsernameStepProps) {
     <div className="rounded-2xl p-8" style={{ backgroundColor: "#ffffff" }}>
       <h1
         className="mb-2 text-3xl font-semibold"
-        style={{ color: "#32323b", fontFamily: "var(--font-heading)" }}
+        style={{ color: "#1c2b4b", fontFamily: "var(--font-heading)" }}
       >
         Pick your username
       </h1>
-      <p className="mb-8 text-base" style={{ color: "#5f5e68" }}>
-        This becomes your personal booking link — choose something memorable.
+      <p className="mb-8 text-base" style={{ color: "#4b5a6d" }}>
+        This becomes your personal booking link. Choose something memorable.
       </p>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-6">
         {/* URL preview */}
-        <div className="rounded-xl px-4 py-3" style={{ backgroundColor: "#f6f2fb" }}>
-          <p className="mb-1 text-xs font-medium" style={{ color: "#5f5e68" }}>
+        <div className="rounded-xl px-4 py-3" style={{ backgroundColor: "#f0f5ff" }}>
+          <p className="mb-1 text-xs font-medium" style={{ color: "#4b5a6d" }}>
             Your booking link will be
           </p>
-          <p className="text-sm font-medium break-all" style={{ color: "#4a4bd7" }}>
+          <p className="text-sm font-medium break-all" style={{ color: "#006bff" }}>
             {appUrl}/
             <span style={{ fontWeight: 700 }}>{preview}</span>
           </p>
@@ -54,14 +54,14 @@ export function UsernameStep({ defaultUsername, appUrl }: UsernameStepProps) {
           <label
             htmlFor="username"
             className="text-xs font-medium"
-            style={{ color: "#5f5e68" }}
+            style={{ color: "#4b5a6d" }}
           >
             Username
           </label>
           <div className="relative flex items-center">
             <span
               className="absolute left-3 text-sm pointer-events-none select-none"
-              style={{ color: "#5f5e68" }}
+              style={{ color: "#4b5a6d" }}
             >
               {appUrl.replace(/^https?:\/\//, "")}/
             </span>
@@ -79,8 +79,8 @@ export function UsernameStep({ defaultUsername, appUrl }: UsernameStepProps) {
               placeholder="yourname"
               className="w-full rounded-[0.75rem] py-2.5 pr-3 text-sm outline-none transition-all"
               style={{
-                backgroundColor: error ? "#fff7f7" : "#eae7f1",
-                color: "#32323b",
+                backgroundColor: error ? "#fff7f7" : "#dae6ff",
+                color: "#1c2b4b",
                 paddingLeft: `calc(0.75rem + ${(appUrl.replace(/^https?:\/\//, "").length + 1) * 0.52}rem)`,
                 ...(error ? { boxShadow: "0 0 0 2px rgba(168,54,75,0.4)" } : {}),
               }}
@@ -91,7 +91,7 @@ export function UsernameStep({ defaultUsername, appUrl }: UsernameStepProps) {
               {error}
             </p>
           ) : (
-            <p className="text-xs" style={{ color: "#7b7984" }}>
+            <p className="text-xs" style={{ color: "#6b7d94" }}>
               3–32 characters: letters, numbers, hyphens only
             </p>
           )}
@@ -102,8 +102,8 @@ export function UsernameStep({ defaultUsername, appUrl }: UsernameStepProps) {
           disabled={isPending || value.length < 3}
           className="flex items-center justify-center gap-2 rounded-xl h-11 text-sm font-medium transition-opacity disabled:opacity-50"
           style={{
-            background: "linear-gradient(135deg, #4a4bd7, #7073ff)",
-            color: "#fbf7ff",
+            background: "linear-gradient(135deg, #006bff, #4d94ff)",
+            color: "#ffffff",
           }}
         >
           {isPending ? "Saving…" : "Continue"}

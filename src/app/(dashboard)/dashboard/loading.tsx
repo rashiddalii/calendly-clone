@@ -4,10 +4,10 @@ export default function DashboardLoading() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex flex-col gap-2">
-          <div className="h-7 w-40 rounded-lg" style={{ backgroundColor: "#e4e1ed" }} />
-          <div className="h-4 w-56 rounded-lg" style={{ backgroundColor: "#eae7f1" }} />
+          <div className="h-7 w-40 rounded-lg" style={{ backgroundColor: "#d0deff" }} />
+          <div className="h-4 w-56 rounded-lg" style={{ backgroundColor: "#dae6ff" }} />
         </div>
-        <div className="h-9 w-32 rounded-xl" style={{ backgroundColor: "#e4e1ed" }} />
+        <div className="h-9 w-32 rounded-xl" style={{ backgroundColor: "#d0deff" }} />
       </div>
       {/* Stat cards */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -17,8 +17,8 @@ export default function DashboardLoading() {
             className="rounded-2xl p-6"
             style={{ backgroundColor: "#ffffff" }}
           >
-            <div className="mb-3 h-4 w-24 rounded" style={{ backgroundColor: "#eae7f1" }} />
-            <div className="h-8 w-16 rounded-lg" style={{ backgroundColor: "#e4e1ed" }} />
+            <div className="mb-3 h-4 w-24 rounded" style={{ backgroundColor: "#dae6ff" }} />
+            <div className="h-8 w-16 rounded-lg" style={{ backgroundColor: "#d0deff" }} />
           </div>
         ))}
       </div>

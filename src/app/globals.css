@@ -2,10 +2,20 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+/* Offset anchor targets so sticky navbar doesn't cover the section heading */
+[id] {
+  scroll-margin-top: 80px;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /* ---------------------------------------------------------------------------
-   DESIGN.md — "Fluid Architect" tokens
+   DESIGN.md — "Fluid Architect" tokens (Blue + White edition)
    Every color here maps to a token in DESIGN.md. Do not introduce flat primary
    hexes on CTAs — use the gradient utility .cta-gradient instead.
 --------------------------------------------------------------------------- */
@@ -88,123 +98,133 @@
 }
 
 :root {
-  /* Brand */
-  --brand: #4a4bd7;
-  --brand-container: #7073ff;
-  --on-brand: #fbf7ff;
+  /* Brand — Calendly Blue */
+  --brand: #006bff;
+  --brand-container: #4d94ff;
+  --on-brand: #ffffff;
 
-  /* Surface hierarchy */
-  --surface: #fcf8fe;
-  --surface-container-low: #f6f2fb;
-  --surface-container: #f0ecf6;
+  /* Surface hierarchy — Clean White with subtle blue tints */
+  --surface: #ffffff;
+  --surface-container-low: #f0f5ff;
+  --surface-container: #e5edff;
   --surface-container-lowest: #ffffff;
-  --surface-container-high: #eae7f1;
-  --surface-container-highest: #e4e1ed;
-  --surface-dim: #dbd8e4;
-  --surface-bright: #fcf8fe;
+  --surface-container-high: #dae6ff;
+  --surface-container-highest: #d0deff;
+  --surface-dim: #bdd0f8;
+  --surface-bright: #ffffff;
 
-  /* Text */
-  --on-surface: #32323b;
-  --on-surface-variant: #5f5e68;
+  /* Text — Calendly Navy */
+  --on-surface: #1c2b4b;
+  --on-surface-variant: #4b5a6d;
 
   /* Semantic */
-  --secondary: #5d5d72;
-  --secondary-container: #e2e0f9;
-  --on-secondary: #fbf7ff;
-  --on-secondary-container: #505064;
-  --tertiary: #745479;
-  --tertiary-container: #f5cdf9;
+  --secondary: #4b5a6d;
+  --secondary-container: #d9e8ff;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #1c3a6e;
+  --tertiary: #2d8a5e;
+  --tertiary-container: #d0f2e3;
   --error: #a8364b;
   --error-container: #f97386;
   --on-error: #fff7f7;
-  --outline: #7b7984;
-  --outline-variant: #b3b0bc;
+  --outline: #6b7d94;
+  --outline-variant: #9dafc5;
 
   /* shadcn bridge */
-  --background: #fcf8fe;
-  --foreground: #32323b;
+  --background: #ffffff;
+  --foreground: #1c2b4b;
   --card: #ffffff;
-  --card-foreground: #32323b;
+  --card-foreground: #1c2b4b;
   --popover: #ffffff;
-  --popover-foreground: #32323b;
-  --primary: #4a4bd7;
-  --primary-foreground: #fbf7ff;
-  --secondary-foreground: #32323b;
-  --muted: #f0ecf6;
-  --muted-foreground: #5f5e68;
-  --accent: #eae7f1;
-  --accent-foreground: #32323b;
+  --popover-foreground: #1c2b4b;
+  --primary: #006bff;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #1c2b4b;
+  --muted: #e5edff;
+  --muted-foreground: #4b5a6d;
+  --accent: #dae6ff;
+  --accent-foreground: #1c2b4b;
   --destructive: #a8364b;
-  --border: rgba(179, 176, 188, 0.15); /* outline-variant at 15% */
-  --input: #eae7f1;
-  --ring: rgba(74, 75, 215, 0.3);
-  --chart-1: #4a4bd7;
-  --chart-2: #7073ff;
-  --chart-3: #745479;
-  --chart-4: #5d5d72;
+  --border: rgba(157, 175, 197, 0.15);
+  --input: #dae6ff;
+  --ring: rgba(0, 107, 255, 0.3);
+  --chart-1: #006bff;
+  --chart-2: #4d94ff;
+  --chart-3: #2d8a5e;
+  --chart-4: #4b5a6d;
   --chart-5: #a8364b;
   --radius: 0.75rem;
-  --sidebar: #f6f2fb;
-  --sidebar-foreground: #32323b;
-  --sidebar-primary: #4a4bd7;
-  --sidebar-primary-foreground: #fbf7ff;
+  --sidebar: #f0f5ff;
+  --sidebar-foreground: #1c2b4b;
+  --sidebar-primary: #006bff;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #ffffff;
-  --sidebar-accent-foreground: #32323b;
-  --sidebar-border: rgba(179, 176, 188, 0.15);
-  --sidebar-ring: rgba(74, 75, 215, 0.3);
+  --sidebar-accent-foreground: #1c2b4b;
+  --sidebar-border: rgba(157, 175, 197, 0.15);
+  --sidebar-ring: rgba(0, 107, 255, 0.3);
 }
 
 .dark {
   /* Dark mode kept for shadcn compat — demo is light-mode first. */
-  --background: #1a1a22;
-  --foreground: #fbf7ff;
-  --surface: #1a1a22;
-  --surface-container-low: #22222c;
-  --surface-container: #2a2a35;
-  --surface-container-lowest: #16161e;
-  --surface-container-high: #32323f;
-  --surface-container-highest: #3b3b48;
-  --on-surface: #f0ecf6;
-  --on-surface-variant: #b3b0bc;
-  --card: #22222c;
-  --card-foreground: #f0ecf6;
-  --popover: #22222c;
-  --popover-foreground: #f0ecf6;
-  --primary: #7073ff;
-  --primary-foreground: #16161e;
-  --secondary: #5d5d72;
-  --secondary-foreground: #f0ecf6;
-  --muted: #2a2a35;
-  --muted-foreground: #b3b0bc;
-  --accent: #32323f;
-  --accent-foreground: #f0ecf6;
+  --background: #0d1526;
+  --foreground: #e8f0ff;
+  --surface: #0d1526;
+  --surface-container-low: #121e36;
+  --surface-container: #172544;
+  --surface-container-lowest: #090f1c;
+  --surface-container-high: #1e2f52;
+  --surface-container-highest: #243761;
+  --on-surface: #e8f0ff;
+  --on-surface-variant: #9dafc5;
+  --card: #121e36;
+  --card-foreground: #e8f0ff;
+  --popover: #121e36;
+  --popover-foreground: #e8f0ff;
+  --primary: #4d94ff;
+  --primary-foreground: #090f1c;
+  --secondary: #4b5a6d;
+  --secondary-foreground: #e8f0ff;
+  --muted: #172544;
+  --muted-foreground: #9dafc5;
+  --accent: #1e2f52;
+  --accent-foreground: #e8f0ff;
   --destructive: #f97386;
-  --border: rgba(179, 176, 188, 0.12);
-  --input: #32323f;
-  --ring: rgba(112, 115, 255, 0.4);
-  --sidebar: #22222c;
-  --sidebar-foreground: #f0ecf6;
-  --sidebar-primary: #7073ff;
-  --sidebar-primary-foreground: #16161e;
-  --sidebar-accent: #32323f;
-  --sidebar-accent-foreground: #f0ecf6;
-  --sidebar-border: rgba(179, 176, 188, 0.12);
-  --sidebar-ring: rgba(112, 115, 255, 0.4);
+  --border: rgba(157, 175, 197, 0.12);
+  --input: #1e2f52;
+  --ring: rgba(77, 148, 255, 0.4);
+  --sidebar: #121e36;
+  --sidebar-foreground: #e8f0ff;
+  --sidebar-primary: #4d94ff;
+  --sidebar-primary-foreground: #090f1c;
+  --sidebar-accent: #1e2f52;
+  --sidebar-accent-foreground: #e8f0ff;
+  --sidebar-border: rgba(157, 175, 197, 0.12);
+  --sidebar-ring: rgba(77, 148, 255, 0.4);
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
   html {
     font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   }
   body {
+    overflow-x: hidden;
     background-color: var(--surface);
     color: var(--on-surface);
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
     letter-spacing: -0.01em;
   }
@@ -212,17 +232,30 @@
 
 /* --- Utility classes for DESIGN.md patterns that aren't one-word Tailwind --- */
 @layer utilities {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .h-touch {
+    min-height: 2.75rem;
+  }
+
+  .h-display {
+    font-size: clamp(2.5rem, 8vw, 4.75rem);
+    line-height: 0.95;
+  }
+
   /* Mandatory gradient for every primary CTA (DESIGN.md §2, §8) */
   .cta-gradient {
-    background-image: linear-gradient(135deg, #4a4bd7, #7073ff);
-    color: #fbf7ff;
+    background-image: linear-gradient(135deg, #006bff, #4d94ff);
+    color: #ffffff;
     transition: filter 160ms ease;
   }
   .cta-gradient:hover {
     filter: brightness(0.95);
   }
   .cta-gradient:focus-visible {
-    outline: 2px solid rgba(74, 75, 215, 0.4);
+    outline: 2px solid rgba(0, 107, 255, 0.4);
     outline-offset: 2px;
   }
 
@@ -231,25 +264,27 @@
     background-color: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    box-shadow: 0 12px 40px rgba(50, 50, 59, 0.06);
+    box-shadow: 0 12px 40px rgba(28, 43, 75, 0.06);
   }
 
   /* Soft hover elevation (DESIGN.md §6) */
   .hover-lift {
-    transition: box-shadow 160ms ease, transform 160ms ease;
+    transition:
+      box-shadow 160ms ease,
+      transform 160ms ease;
   }
   .hover-lift:hover {
-    box-shadow: 0 4px 16px rgba(50, 50, 59, 0.04);
+    box-shadow: 0 4px 16px rgba(28, 43, 75, 0.04);
     transform: translateY(-1px);
   }
 
   /* Ghost border — 15% outline-variant, used sparingly for a11y */
   .ghost-border {
-    box-shadow: inset 0 0 0 1px rgba(179, 176, 188, 0.15);
+    box-shadow: inset 0 0 0 1px rgba(157, 175, 197, 0.15);
   }
 
   /* Subtle brand tint for empty states */
   .brand-tint {
-    background-color: rgba(74, 75, 215, 0.06);
+    background-color: rgba(0, 107, 255, 0.06);
   }
 }
