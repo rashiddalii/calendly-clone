@@ -1,14 +1,15 @@
-import { redirect } from "next/navigation"
-import Link from "next/link"
-import { auth } from "@/lib/auth"
-import { handleOAuthSignUp } from "@/lib/actions/auth"
-import { EmailSignInForm } from "@/components/auth/email-sign-in-form"
-import { TrustLogosStrip } from "@/components/marketing/trust-logos-strip"
-import { Check } from "lucide-react"
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { handleOAuthSignUp } from "@/lib/actions/auth";
+import { AuthTabs } from "@/components/auth/auth-tabs";
+import { TrustLogosStrip } from "@/components/marketing/trust-logos-strip";
+import { FluidLogo } from "@/components/shared/fluid-logo";
+import { Check } from "lucide-react";
 
-const BLUE = "#006BFF"
-const NAVY = "#00213F"
-const PANEL = "#F8F9FB"
+const BLUE = "#006BFF";
+const NAVY = "#00213F";
+const PANEL = "#F8F9FB";
 
 const FEATURES = [
   "Multi-person and co-hosted meetings",
@@ -16,7 +17,7 @@ const FEATURES = [
   "Meeting reminders, follow-ups, and notifications",
   "Connect payment tools like PayPal or Stripe",
   "Remove Fluid branding on paid plans",
-]
+];
 
 function GoogleGlyph({ className }: { className?: string }) {
   return (
@@ -38,7 +39,7 @@ function GoogleGlyph({ className }: { className?: string }) {
         fill="#EA4335"
       />
     </svg>
-  )
+  );
 }
 
 function MicrosoftGlyph({ className }: { className?: string }) {
@@ -49,7 +50,7 @@ function MicrosoftGlyph({ className }: { className?: string }) {
       <path fill="#7fba00" d="M1 12h10v10H1z" />
       <path fill="#ffb900" d="M12 12h10v10H12z" />
     </svg>
-  )
+  );
 }
 
 function oauthButtonClass(disabled?: boolean) {
@@ -58,50 +59,26 @@ function oauthButtonClass(disabled?: boolean) {
     disabled
       ? "cursor-not-allowed border-[#E5E7EB] opacity-50"
       : "cursor-pointer border-[#E5E7EB] hover:bg-[#F8F9FB]",
-  ].join(" ")
+  ].join(" ");
 }
 
 export default async function SignupPage() {
-  const session = await auth()
-  if (session) redirect("/events")
+  const session = await auth();
+  if (session) redirect("/events");
 
-  const year = new Date().getFullYear()
   const microsoftOAuthEnabled = Boolean(
     process.env.AUTH_MICROSOFT_ENTRA_ID_ID &&
-      process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET
-  )
+    process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-[#0F172A]">
       <header className="border-b border-[#E5E7EB] px-4 py-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 no-underline"
-            aria-label="Fluid home"
-          >
-            <span
-              className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg"
-              style={{ backgroundColor: "#1e3461" }}
-            >
-              <img
-                src="/logo-fluid-icon.svg"
-                alt=""
-                width={22}
-                height={22}
-                className="object-contain"
-              />
-            </span>
-            <span
-              className="font-[family-name:var(--font-manrope)] text-xl font-bold tracking-tight"
-              style={{ color: BLUE }}
-            >
-              Fluid
-            </span>
-          </Link>
+          <FluidLogo />
           <Link
             href="/login"
-            className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-[15px] font-medium text-[#444444] no-underline transition-colors hover:bg-[#F8F9FB]"
+            className="inline-flex min-h-11 items-center rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-[15px] font-medium text-[#444444] no-underline transition-colors hover:bg-[#F8F9FB]"
           >
             Log In
           </Link>
@@ -120,7 +97,7 @@ export default async function SignupPage() {
             </p>
 
             <div className="mt-10 flex flex-col gap-6">
-              <EmailSignInForm variant="marketing" />
+              <AuthTabs mode="signup" />
 
               <div className="flex items-center gap-4">
                 <div className="h-px flex-1 bg-[#E5E7EB]" />
@@ -197,12 +174,15 @@ export default async function SignupPage() {
             >
               Try Teams plan free
             </span>
-            <h2 className="font-[family-name:var(--font-manrope)] mt-5 text-2xl font-bold leading-snug tracking-tight text-[#0F172A] sm:text-[1.65rem]">
+            <h2 className="font-[family-name:var(--font-manrope)] mt-5 text-2xl font-bold leading-snug tracking-tight text-[#0F172A] sm:text-3xl lg:text-4xl">
               Explore premium features with your free 14-day Teams plan trial
             </h2>
             <ul className="mt-8 flex flex-col gap-4">
               {FEATURES.map((line) => (
-                <li key={line} className="flex gap-3 text-[17px] leading-snug text-[#334155]">
+                <li
+                  key={line}
+                  className="flex gap-3 text-[17px] leading-snug text-[#334155]"
+                >
                   <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[#006BFF]">
                     <Check className="h-4 w-4" strokeWidth={2.5} />
                   </span>
@@ -221,5 +201,5 @@ export default async function SignupPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

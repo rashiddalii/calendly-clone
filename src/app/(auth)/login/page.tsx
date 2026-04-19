@@ -1,13 +1,14 @@
-import { redirect } from "next/navigation"
-import Link from "next/link"
-import { auth } from "@/lib/auth"
-import { handleOAuthSignIn } from "@/lib/actions/auth"
-import { EmailSignInForm } from "@/components/auth/email-sign-in-form"
-import { CalendarClock, Shield, Sparkles } from "lucide-react"
+import { redirect } from "next/navigation";
+import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { handleOAuthSignIn } from "@/lib/actions/auth";
+import { AuthTabs } from "@/components/auth/auth-tabs";
+import { FluidLogo } from "@/components/shared/fluid-logo";
+import { CalendarClock, Shield, Sparkles } from "lucide-react";
 
-const BLUE = "#006BFF"
-const NAVY = "#00213F"
-const PANEL = "#F8F9FB"
+const BLUE = "#006BFF";
+const NAVY = "#00213F";
+const PANEL = "#F8F9FB";
 
 function GoogleGlyph({ className }: { className?: string }) {
   return (
@@ -29,7 +30,7 @@ function GoogleGlyph({ className }: { className?: string }) {
         fill="#EA4335"
       />
     </svg>
-  )
+  );
 }
 
 function MicrosoftGlyph({ className }: { className?: string }) {
@@ -40,7 +41,7 @@ function MicrosoftGlyph({ className }: { className?: string }) {
       <path fill="#7fba00" d="M1 12h10v10H1z" />
       <path fill="#ffb900" d="M12 12h10v10H12z" />
     </svg>
-  )
+  );
 }
 
 function oauthButtonClass(disabled?: boolean) {
@@ -49,7 +50,7 @@ function oauthButtonClass(disabled?: boolean) {
     disabled
       ? "cursor-not-allowed border-[#E5E7EB] opacity-50"
       : "cursor-pointer border-[#E5E7EB] hover:bg-[#F8F9FB]",
-  ].join(" ")
+  ].join(" ");
 }
 
 const HIGHLIGHTS = [
@@ -66,57 +67,35 @@ const HIGHLIGHTS = [
   {
     icon: Sparkles,
     title: "Pick up mid-flow",
-    body: "Finish onboarding, tweak availability, or send a booking link—right where you left off.",
+    body: "Finish onboarding, tweak availability, or send a booking link. Pick up right where you left off.",
   },
-]
+];
 
 interface LoginPageProps {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; verified?: string; reset?: string }>;
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await auth()
-  if (session) redirect("/events")
+  const session = await auth();
+  if (session) redirect("/events");
 
-  const params = await searchParams
-  const isExpiredLink = params.error === "Verification"
-  const year = new Date().getFullYear()
+  const params = await searchParams;
+  const isExpiredLink = params.error === "Verification";
+  const isVerified = params.verified === "1";
+  const isReset = params.reset === "1";
   const microsoftOAuthEnabled = Boolean(
     process.env.AUTH_MICROSOFT_ENTRA_ID_ID &&
-      process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET
-  )
+    process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET
+  );
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-[#0F172A]">
       <header className="border-b border-[#E5E7EB] px-4 py-4 sm:px-8">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
-          <Link
-            href="/"
-            className="flex items-center gap-2 no-underline"
-            aria-label="Fluid home"
-          >
-            <span
-              className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg"
-              style={{ backgroundColor: "#1e3461" }}
-            >
-              <img
-                src="/logo-fluid-icon.svg"
-                alt=""
-                width={22}
-                height={22}
-                className="object-contain"
-              />
-            </span>
-            <span
-              className="font-[family-name:var(--font-manrope)] text-xl font-bold tracking-tight"
-              style={{ color: BLUE }}
-            >
-              Fluid
-            </span>
-          </Link>
+          <FluidLogo />
           <Link
             href="/signup"
-            className="inline-flex items-center rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-[15px] font-medium text-[#444444] no-underline transition-colors hover:bg-[#F8F9FB]"
+            className="inline-flex min-h-11 items-center rounded-lg border border-[#E5E7EB] bg-white px-4 py-2 text-[15px] font-medium text-[#444444] no-underline transition-colors hover:bg-[#F8F9FB]"
           >
             Sign up
           </Link>
@@ -136,13 +115,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             >
               Welcome back
             </span>
-            <h1 className="font-[family-name:var(--font-manrope)] mt-5 text-2xl font-bold leading-snug tracking-tight text-[#0F172A] sm:text-[1.85rem]">
+            <h1 className="font-[family-name:var(--font-manrope)] mt-5 text-2xl font-bold leading-snug tracking-tight text-[#0F172A] sm:text-3xl lg:text-4xl">
               Sign in and get back to effortless scheduling
             </h1>
             <p className="mt-4 text-[17px] leading-relaxed text-[#64748B]">
-              Your availability, meetings, and booking links stay synced. One quick
-              sign-in brings you to the dashboard—no new passwords to remember when
-              you use Google, Microsoft, or email.
+              Your availability, meetings, and booking links stay synced. One
+              quick sign-in brings you to the dashboard. No new passwords to
+              remember when you use Google, Microsoft, or email.
             </p>
 
             <ul className="mt-10 flex flex-col gap-6">
@@ -175,22 +154,38 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               Log in to Fluid
             </h2>
             <p className="mt-2 text-[17px] text-[#64748B]">
-              Use your email or connected account—same link works on desktop and
-              mobile.
+              Use your email or connected account. The same link works on
+              desktop and mobile.
             </p>
 
             <div className="mt-10 flex flex-col gap-6">
+              {isVerified && (
+                <div
+                  role="alert"
+                  className="rounded-[10px] border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+                >
+                  Email verified. Sign in below to get started.
+                </div>
+              )}
+              {isReset && (
+                <div
+                  role="alert"
+                  className="rounded-[10px] border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800"
+                >
+                  Password reset. Sign in with your new password.
+                </div>
+              )}
               {isExpiredLink && (
                 <div
                   role="alert"
                   className="rounded-[10px] border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"
                 >
-                  That sign-in link has expired or was already used. Please request a
-                  new one below.
+                  That sign-in link has expired or was already used. Please
+                  request a new one below.
                 </div>
               )}
 
-              <EmailSignInForm variant="marketing" />
+              <AuthTabs mode="signin" />
 
               <div className="flex items-center gap-4">
                 <div className="h-px flex-1 bg-[#E5E7EB]" />
@@ -235,13 +230,16 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </div>
 
               <p className="text-center text-[13px] leading-relaxed text-[#64748B]">
-                Google and Microsoft sign-in connect your calendar for booking and
-                availability.
+                Google and Microsoft sign-in connect your calendar for booking
+                and availability.
               </p>
 
               <p className="text-center text-[13px] leading-relaxed text-[#64748B]">
                 By signing in, you agree to our{" "}
-                <a href="#" className="font-medium text-[#006BFF] no-underline hover:underline">
+                <a
+                  href="#"
+                  className="font-medium text-[#006BFF] no-underline hover:underline"
+                >
                   Terms of Service
                 </a>
                 .
@@ -265,5 +263,5 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
