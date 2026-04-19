@@ -55,22 +55,26 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           }),
         ]
       : []),
-    Nodemailer({
-      server: {
-        host: process.env.SMTP_HOST ?? "localhost",
-        port: Number(process.env.SMTP_PORT ?? 587),
-        secure: process.env.SMTP_SECURE === "true",
-        auth: {
-          user: process.env.SMTP_USER ?? "",
-          pass: process.env.SMTP_PASS ?? "",
-        },
-      },
-      from: process.env.SMTP_FROM ?? "noreply@example.com",
-      maxAge: 600,
-      sendVerificationRequest: async ({ identifier, url }) => {
-        await sendMagicLinkEmail({ to: identifier, url })
-      },
-    }),
+    ...(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS
+      ? [
+          Nodemailer({
+            server: {
+              host: process.env.SMTP_HOST,
+              port: Number(process.env.SMTP_PORT ?? 587),
+              secure: process.env.SMTP_SECURE === "true",
+              auth: {
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS,
+              },
+            },
+            from: process.env.SMTP_FROM ?? "noreply@example.com",
+            maxAge: 600,
+            sendVerificationRequest: async ({ identifier, url }) => {
+              await sendMagicLinkEmail({ to: identifier, url })
+            },
+          }),
+        ]
+      : []),
     // Email + password sign-in
     Credentials({
       id: "credentials",
