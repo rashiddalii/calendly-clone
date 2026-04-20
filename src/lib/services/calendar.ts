@@ -155,7 +155,7 @@ export async function createCalendarEvent(input: {
   const token = await getGoogleAccessToken(input.userId)
   if (!token) return null
 
-  const params = new URLSearchParams({ sendUpdates: "all" })
+  const params = new URLSearchParams({ sendUpdates: "none" })
   if (input.requestMeetLink) params.set("conferenceDataVersion", "1")
 
   const body: Record<string, unknown> = {
@@ -220,7 +220,7 @@ export async function deleteCalendarEvent(
 
   try {
     await fetch(
-      `${EVENTS_URL}/${encodeURIComponent(eventId)}?sendUpdates=all`,
+      `${EVENTS_URL}/${encodeURIComponent(eventId)}?sendUpdates=none`,
       {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token.accessToken}` },

@@ -311,8 +311,9 @@ export async function sendBookingConfirmationToBooker(
   const icsRaw = buildBookerIcsRaw(ctx, "REQUEST")
 
   await dispatch({
-    from: hostAsFrom(ctx.hostName),
-    ...(ctx.hostEmail ? { replyTo: ctx.hostEmail } : {}),
+    from: ctx.hostEmail
+      ? `${ctx.hostName} <${ctx.hostEmail}>`
+      : hostAsFrom(ctx.hostName),
     to: ctx.bookerEmail,
     subject: `Invitation: ${ctx.eventTitle} with ${ctx.hostName}`,
     html: baseShell(`
@@ -407,8 +408,9 @@ export async function sendCancellationToBooker(
   const icsRaw = buildBookerIcsRaw(ctx, "CANCEL")
 
   await dispatch({
-    from: hostAsFrom(ctx.hostName),
-    ...(ctx.hostEmail ? { replyTo: ctx.hostEmail } : {}),
+    from: ctx.hostEmail
+      ? `${ctx.hostName} <${ctx.hostEmail}>`
+      : hostAsFrom(ctx.hostName),
     to: ctx.bookerEmail,
     subject: `Cancelled: ${ctx.eventTitle} with ${ctx.hostName}`,
     html: baseShell(`

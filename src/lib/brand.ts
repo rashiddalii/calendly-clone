@@ -1,6 +1,15 @@
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME ?? "Fluid"
-export const APP_URL =
-  process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
+
+function resolveAppUrl(): string {
+  // Explicit override always wins (set this in Vercel env vars for custom domains)
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL
+  // Vercel injects VERCEL_URL automatically on every deployment (no protocol)
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  // Local development fallback
+  return "http://localhost:3000"
+}
+
+export const APP_URL = resolveAppUrl()
 export const APP_DOMAIN = APP_URL.replace(/^https?:\/\//, "").replace(/\/$/, "")
 
 const FALLBACK_FROM = "noreply@example.com"
