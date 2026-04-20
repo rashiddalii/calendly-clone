@@ -193,13 +193,9 @@ export async function createBooking(input: CreateBookingInput) {
     meetingUrl,
   }
 
-  // If Google Calendar is connected it sends the invite from the host's real Gmail.
-  // Only send our own confirmation when Google Calendar didn't handle it.
-  if (!calendarResult) {
-    await sendBookingConfirmationToBooker(emailCtx).catch((err) =>
-      console.warn("[booking] booker email failed", err),
-    )
-  }
+  await sendBookingConfirmationToBooker(emailCtx).catch((err) =>
+    console.warn("[booking] booker email failed", err),
+  )
   await new Promise((r) => setTimeout(r, 4000))
   await sendBookingNotificationToHost(emailCtx).catch((err) =>
     console.warn("[booking] host email failed", err),

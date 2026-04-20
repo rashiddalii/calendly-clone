@@ -41,6 +41,12 @@ interface MailPayload {
   icsMethod?: "PUBLISH" | "REQUEST" | "CANCEL"
 }
 
+interface SmtpLikeError extends Error {
+  code?: string
+  responseCode?: number
+  response?: string
+}
+
 async function dispatch(payload: MailPayload): Promise<void> {
   const transport = getTransport()
   const icalEvent: nodemailer.SendMailOptions["icalEvent"] =
@@ -64,6 +70,41 @@ async function dispatch(payload: MailPayload): Promise<void> {
     })
   } catch (err) {
     throw err
+  }
+}
+
+function isFromRejectionError(err: unknown): boolean {
+  if (!(err instanceof Error)) return false
+  const smtpErr = err as SmtpLikeError
+  if (typeof smtpErr.responseCode === "number" && smtpErr.responseCode >= 500) {
+    return true
+  }
+  const text = `${smtpErr.code ?? ""} ${smtpErr.message ?? ""} ${smtpErr.response ?? ""}`
+    .toLowerCase()
+    .trim()
+  return (
+    text.includes("sender") ||
+    text.includes("from") ||
+    text.includes("mail from") ||
+    text.includes("not allowed") ||
+    text.includes("unauth") ||
+    text.includes("not authorized")
+  )
+}
+
+async function dispatchInviteeMail(
+  payload: Omit<MailPayload, "from">,
+  hostFrom: string,
+): Promise<void> {
+  try {
+    await dispatch({ ...payload, from: hostFrom })
+  } catch (err) {
+    if (!isFromRejectionError(err)) throw err
+    const fallbackFrom = systemFrom()
+    console.warn(
+      `[email] host From rejected; retrying with system From. to=${payload.to}`,
+    )
+    await dispatch({ ...payload, from: fallbackFrom })
   }
 }
 
@@ -211,6 +252,10 @@ function formatRange(start: Date, end: Date, tz: string): string {
   return `${day} · ${startLabel} – ${endLabel}`
 }
 
+function sanitizeHeaderName(name: string): string {
+  return name.replace(/["<>\r\n]/g, "").trim()
+}
+
 function baseShell(inner: string): string {
   return `
     <div style="font-family: 'Inter', system-ui, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px; color: #1c2b4b; background: #ffffff;">
@@ -300,6 +345,90 @@ function reservationStructuredData(ctx: BookingEmailContext): string {
 
 // ─── Booking emails ───────────────────────────────────────────────────────────
 
+function meetingJoinLabel(url: string): string {
+  if (url.includes("meet.google.com")) return "Join with Google Meet"
+  if (url.includes("zoom.us")) return "Join with Zoom"
+  if (url.includes("teams.microsoft.com")) return "Join with Teams"
+  return "Join meeting"
+}
+
+function calendarInviteHtml(ctx: BookingEmailContext): string {
+  const when = formatRange(ctx.startUtc, ctx.endUtc, ctx.bookerTimezone)
+
+  const locationLine = ctx.meetingUrl
+    ? ""
+    : ctx.locationAddress
+      ? `<tr>
+          <td style="padding: 12px 0 0 0; vertical-align: top;">
+            <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">Where</p>
+            <p style="margin: 0; font-size: 14px; color: #202124;">${escapeHtml(ctx.locationAddress)}</p>
+          </td>
+        </tr>`
+      : ctx.bookerPhone
+        ? `<tr>
+            <td style="padding: 12px 0 0 0; vertical-align: top;">
+              <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">Phone</p>
+              <p style="margin: 0; font-size: 14px; color: #202124;">${escapeHtml(ctx.bookerPhone)}</p>
+            </td>
+          </tr>`
+        : ""
+
+  const meetingPanel = ctx.meetingUrl
+    ? `<td style="width: 180px; padding-left: 24px; vertical-align: top;">
+        <a href="${ctx.meetingUrl}" style="display: block; background: #1a73e8; color: #ffffff; padding: 10px 16px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: 500; text-align: center; margin-bottom: 12px;">${meetingJoinLabel(ctx.meetingUrl)}</a>
+        <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368;">Meeting link</p>
+        <a href="${ctx.meetingUrl}" style="font-size: 12px; color: #1a73e8; word-break: break-all;">${ctx.meetingUrl.replace(/^https?:\/\//, "")}</a>
+      </td>`
+    : ""
+
+  return `
+    <div style="font-family: 'Google Sans', Roboto, Arial, sans-serif; max-width: 560px; margin: 0 auto; color: #202124; background: #ffffff; padding: 24px;">
+
+      <h1 style="font-size: 22px; font-weight: 400; margin: 0 0 4px 0; color: #202124;">${escapeHtml(ctx.eventTitle)}</h1>
+      <p style="font-size: 13px; color: #5f6368; margin: 0 0 24px 0;">Booked via ${escapeHtml(APP_NAME)}.</p>
+
+      <table style="width: 100%; border-collapse: collapse;" cellpadding="0" cellspacing="0">
+        <tr>
+          <td style="vertical-align: top;">
+            <table style="width: 100%; border-collapse: collapse;" cellpadding="0" cellspacing="0">
+
+              <tr>
+                <td style="padding-bottom: 16px; vertical-align: top;">
+                  <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">When</p>
+                  <p style="margin: 0; font-size: 14px; color: #202124;">${when}</p>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding-bottom: 16px; vertical-align: top;">
+                  <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">Organiser</p>
+                  <p style="margin: 0; font-size: 14px; color: #202124;">${escapeHtml(ctx.hostName)}</p>
+                  ${ctx.hostEmail ? `<p style="margin: 2px 0 0 0; font-size: 13px; color: #1a73e8;">${escapeHtml(ctx.hostEmail)}</p>` : ""}
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding-bottom: 16px; vertical-align: top;">
+                  <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">Guests</p>
+                  <p style="margin: 0; font-size: 14px; color: #1a73e8;">${escapeHtml(ctx.bookerEmail)}</p>
+                </td>
+              </tr>
+
+              ${locationLine}
+
+              ${ctx.bookerNotes ? `<tr><td style="padding-bottom: 16px; vertical-align: top;"><p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">Notes</p><p style="margin: 0; font-size: 14px; color: #202124;">${escapeHtml(ctx.bookerNotes)}</p></td></tr>` : ""}
+
+            </table>
+          </td>
+          ${meetingPanel}
+        </tr>
+      </table>
+
+      <p style="color: #9dafc5; font-size: 11px; text-align: center; margin-top: 24px; border-top: 1px solid #f0f4f8; padding-top: 16px;">Sent by ${escapeHtml(APP_NAME)} · scheduling, reimagined</p>
+    </div>
+  `
+}
+
 export async function sendBookingConfirmationToBooker(
   ctx: BookingEmailContext,
 ): Promise<void> {
@@ -309,31 +438,22 @@ export async function sendBookingConfirmationToBooker(
   }
   const when = formatRange(ctx.startUtc, ctx.endUtc, ctx.bookerTimezone)
   const icsRaw = buildBookerIcsRaw(ctx, "REQUEST")
+  const hostFrom = ctx.hostEmail
+    ? `${sanitizeHeaderName(ctx.hostName)} <${ctx.hostEmail}>`
+    : hostAsFrom(ctx.hostName)
 
-  await dispatch({
-    from: ctx.hostEmail
-      ? `${ctx.hostName} <${ctx.hostEmail}>`
-      : hostAsFrom(ctx.hostName),
+  await dispatchInviteeMail(
+    {
+    ...(ctx.hostEmail ? { replyTo: ctx.hostEmail } : {}),
     to: ctx.bookerEmail,
     subject: `Invitation: ${ctx.eventTitle} with ${ctx.hostName}`,
-    html: baseShell(`
-      <h2 style="font-family: 'Manrope', sans-serif; font-size: 22px; font-weight: 700; margin: 0 0 8px 0;">You&rsquo;re all set</h2>
-      <p style="color: #4b5a6d; margin: 0 0 24px 0;">Your meeting with ${escapeHtml(ctx.hostName)} is confirmed.</p>
-      <div style="background: #f0f5ff; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-        <p style="font-size: 16px; font-weight: 600; margin: 0 0 4px 0;">${escapeHtml(ctx.eventTitle)}</p>
-        <p style="color: #4b5a6d; margin: 0;">${when}</p>
-      </div>
-      ${ctx.meetingUrl ? `<div style="margin-bottom: 20px;"><a href="${ctx.meetingUrl}" style="display: inline-block; background: linear-gradient(135deg, #006bff, #4d94ff); color: #ffffff; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 500;">Join meeting</a></div>` : ""}
-      ${ctx.bookerPhone && !ctx.meetingUrl ? `<div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px; margin-bottom: 20px;"><p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #065f46;">Your host will call you at:</p><p style="margin: 0; font-size: 16px; font-weight: 700; color: #1c2b4b;">${escapeHtml(ctx.bookerPhone)}</p></div>` : ""}
-      ${ctx.locationAddress && !ctx.meetingUrl && !ctx.bookerPhone ? `<div style="background: #fef9ec; border: 1px solid #fde68a; border-radius: 12px; padding: 16px; margin-bottom: 20px;"><p style="margin: 0 0 4px 0; font-size: 13px; font-weight: 600; color: #92400e;">Meeting location:</p><p style="margin: 0; font-size: 15px; font-weight: 600; color: #1c2b4b;">${escapeHtml(ctx.locationAddress)}</p></div>` : ""}
-      ${ctx.bookerNotes ? `<p style="color: #4b5a6d; margin: 0 0 24px 0;"><strong>Your notes:</strong> ${escapeHtml(ctx.bookerNotes)}</p>` : ""}
-      <p style="color: #4b5a6d; font-size: 13px; margin: 0 0 8px 0;">Calendar invite attached. Most email clients will let you accept or decline directly.</p>
-      <p style="color: #9dafc5; font-size: 13px;">Need to cancel or reschedule? Reply to this email.</p>
-    `),
-    text: `You're booked!\n\n${ctx.eventTitle} with ${ctx.hostName}\n${when}\n\nCalendar invite attached. Need to cancel? Reply to this email.`,
+    html: calendarInviteHtml(ctx),
+    text: `${ctx.eventTitle} with ${ctx.hostName}\nBooked via ${APP_NAME}.\n\nWhen: ${when}${ctx.hostEmail ? `\nOrganiser: ${ctx.hostName} <${ctx.hostEmail}>` : `\nOrganiser: ${ctx.hostName}`}\nGuests: ${ctx.bookerEmail}${ctx.meetingUrl ? `\nJoin: ${ctx.meetingUrl}` : ""}${ctx.locationAddress ? `\nWhere: ${ctx.locationAddress}` : ""}${ctx.bookerPhone ? `\nPhone: ${ctx.bookerPhone}` : ""}${ctx.bookerNotes ? `\nNotes: ${ctx.bookerNotes}` : ""}`,
     icsRaw,
     icsMethod: "REQUEST",
-  }).catch((err) => console.warn("[email] booker confirmation failed:", err))
+    },
+    hostFrom,
+  ).catch((err) => console.warn("[email] booker confirmation failed:", err))
 }
 
 export async function sendBookingNotificationToHost(
@@ -406,11 +526,13 @@ export async function sendCancellationToBooker(
   }
   const when = formatRange(ctx.startUtc, ctx.endUtc, ctx.bookerTimezone)
   const icsRaw = buildBookerIcsRaw(ctx, "CANCEL")
+  const hostFrom = ctx.hostEmail
+    ? `${sanitizeHeaderName(ctx.hostName)} <${ctx.hostEmail}>`
+    : hostAsFrom(ctx.hostName)
 
-  await dispatch({
-    from: ctx.hostEmail
-      ? `${ctx.hostName} <${ctx.hostEmail}>`
-      : hostAsFrom(ctx.hostName),
+  await dispatchInviteeMail(
+    {
+    ...(ctx.hostEmail ? { replyTo: ctx.hostEmail } : {}),
     to: ctx.bookerEmail,
     subject: `Cancelled: ${ctx.eventTitle} with ${ctx.hostName}`,
     html: baseShell(`
@@ -424,7 +546,9 @@ export async function sendCancellationToBooker(
     text: `Cancelled: ${ctx.eventTitle} with ${ctx.hostName}\n${when}`,
     icsRaw,
     icsMethod: "CANCEL",
-  }).catch((err) => console.warn("[email] booker cancellation failed:", err))
+    },
+    hostFrom,
+  ).catch((err) => console.warn("[email] booker cancellation failed:", err))
 }
 
 export async function sendCancellationToHost(
