@@ -155,7 +155,7 @@ export async function createCalendarEvent(input: {
   const token = await getGoogleAccessToken(input.userId)
   if (!token) return null
 
-  const params = new URLSearchParams({ sendUpdates: "none" })
+  const params = new URLSearchParams({ sendUpdates: "all" })
   if (input.requestMeetLink) params.set("conferenceDataVersion", "1")
 
   const body: Record<string, unknown> = {
