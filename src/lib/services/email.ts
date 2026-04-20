@@ -238,11 +238,20 @@ interface BookingEmailContext {
   bookerTimezone: string
   bookerNotes?: string | null
   bookerPhone?: string | null
+  locationLabel?: string | null
   locationAddress?: string | null
   bookingId: string
   icalUid: string
   icalSequence: number
   meetingUrl?: string | null
+}
+
+function meetingLocationValue(ctx: BookingEmailContext): string | null {
+  if (ctx.meetingUrl) return ctx.meetingUrl
+  if (ctx.locationAddress) return ctx.locationAddress
+  if (ctx.bookerPhone) return ctx.bookerPhone
+  if (ctx.locationLabel === "Google Meet") return "Google Meet (host will share link)"
+  return ctx.locationLabel ?? null
 }
 
 function formatRange(start: Date, end: Date, tz: string): string {
@@ -271,48 +280,27 @@ function buildBookerIcsRaw(
   ctx: BookingEmailContext,
   method: "REQUEST" | "CANCEL",
 ): string | null {
-  if (!ctx.hostEmail) return null
+  const organizerEmail = systemFromAddress()
+  const organizerName = ctx.hostName || APP_NAME
   return buildIcs({
     uid: ctx.icalUid,
     sequence: ctx.icalSequence,
     method,
     summary: `${ctx.eventTitle} with ${ctx.hostName}`,
-    description: ctx.meetingUrl
-      ? `Join: ${ctx.meetingUrl}${ctx.bookerNotes ? `\n\n${ctx.bookerNotes}` : ""}`
-      : ctx.bookerNotes || undefined,
-    location: ctx.meetingUrl || undefined,
+    description: [
+      ctx.meetingUrl ? `Join: ${ctx.meetingUrl}` : null,
+      !ctx.meetingUrl && meetingLocationValue(ctx)
+        ? `Location: ${meetingLocationValue(ctx)}`
+        : null,
+      ctx.bookerNotes || null,
+    ]
+      .filter((line): line is string => Boolean(line))
+      .join("\n\n") || undefined,
+    location: meetingLocationValue(ctx) || undefined,
     startUtc: ctx.startUtc,
     endUtc: ctx.endUtc,
-    organizer: { name: ctx.hostName, email: ctx.hostEmail },
+    organizer: { name: organizerName, email: organizerEmail },
     attendee: { name: ctx.bookerName, email: ctx.bookerEmail },
-  })
-}
-
-function buildHostIcsRaw(
-  ctx: BookingEmailContext,
-  method: "PUBLISH" | "CANCEL",
-): string | null {
-  if (!ctx.hostEmail) return null
-
-  const description = [
-    `Invitee: ${ctx.bookerName} <${ctx.bookerEmail}>`,
-    ctx.bookerPhone ? `Call: ${ctx.bookerPhone}` : null,
-    ctx.meetingUrl ? `Join: ${ctx.meetingUrl}` : null,
-    ctx.bookerNotes ? `Notes: ${ctx.bookerNotes}` : null,
-  ]
-    .filter((line): line is string => Boolean(line))
-    .join("\n\n")
-
-  return buildIcs({
-    uid: ctx.icalUid,
-    sequence: ctx.icalSequence,
-    method,
-    summary: `${ctx.eventTitle} with ${ctx.bookerName}`,
-    description,
-    location: ctx.meetingUrl || undefined,
-    startUtc: ctx.startUtc,
-    endUtc: ctx.endUtc,
-    organizer: { name: APP_NAME, email: systemFromAddress() },
   })
 }
 
@@ -371,6 +359,13 @@ function calendarInviteHtml(ctx: BookingEmailContext): string {
               <p style="margin: 0; font-size: 14px; color: #202124;">${escapeHtml(ctx.bookerPhone)}</p>
             </td>
           </tr>`
+        : meetingLocationValue(ctx)
+          ? `<tr>
+              <td style="padding: 12px 0 0 0; vertical-align: top;">
+                <p style="margin: 0 0 2px 0; font-size: 12px; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.5px;">Where</p>
+                <p style="margin: 0; font-size: 14px; color: #202124;">${escapeHtml(meetingLocationValue(ctx)!)}</p>
+              </td>
+            </tr>`
         : ""
 
   const meetingPanel = ctx.meetingUrl
@@ -438,12 +433,10 @@ export async function sendBookingConfirmationToBooker(
   }
   const when = formatRange(ctx.startUtc, ctx.endUtc, ctx.bookerTimezone)
   const icsRaw = buildBookerIcsRaw(ctx, "REQUEST")
-  const hostFrom = ctx.hostEmail
-    ? `${sanitizeHeaderName(ctx.hostName)} <${ctx.hostEmail}>`
-    : hostAsFrom(ctx.hostName)
+  const hostFrom = hostAsFrom(ctx.hostName)
 
-  await dispatchInviteeMail(
-    {
+  await dispatch({
+    from: hostFrom,
     ...(ctx.hostEmail ? { replyTo: ctx.hostEmail } : {}),
     to: ctx.bookerEmail,
     subject: `Invitation: ${ctx.eventTitle} with ${ctx.hostName}`,
@@ -451,9 +444,7 @@ export async function sendBookingConfirmationToBooker(
     text: `${ctx.eventTitle} with ${ctx.hostName}\nBooked via ${APP_NAME}.\n\nWhen: ${when}${ctx.hostEmail ? `\nOrganiser: ${ctx.hostName} <${ctx.hostEmail}>` : `\nOrganiser: ${ctx.hostName}`}\nGuests: ${ctx.bookerEmail}${ctx.meetingUrl ? `\nJoin: ${ctx.meetingUrl}` : ""}${ctx.locationAddress ? `\nWhere: ${ctx.locationAddress}` : ""}${ctx.bookerPhone ? `\nPhone: ${ctx.bookerPhone}` : ""}${ctx.bookerNotes ? `\nNotes: ${ctx.bookerNotes}` : ""}`,
     icsRaw,
     icsMethod: "REQUEST",
-    },
-    hostFrom,
-  ).catch((err) => console.warn("[email] booker confirmation failed:", err))
+  }).catch((err) => console.warn("[email] booker confirmation failed:", err))
 }
 
 export async function sendBookingNotificationToHost(
@@ -466,7 +457,6 @@ export async function sendBookingNotificationToHost(
   }
   const when = formatRange(ctx.startUtc, ctx.endUtc, ctx.hostTimezone)
   const dashboardLink = `${APP_URL}/meetings`
-  const icsRaw = buildHostIcsRaw(ctx, "PUBLISH")
 
   const row = (label: string, value: string) =>
     `<tr>
@@ -501,6 +491,8 @@ export async function sendBookingNotificationToHost(
             ? row("Location:", `<a href="${ctx.meetingUrl}" style="color: #006bff; text-decoration: none;">Join the meeting</a>`)
             : ctx.locationAddress
               ? row("Location:", escapeHtml(ctx.locationAddress))
+              : meetingLocationValue(ctx)
+                ? row("Location:", escapeHtml(meetingLocationValue(ctx)!))
               : ""}
           ${row("Invitee Timezone:", escapeHtml(ctx.bookerTimezone))}
           ${ctx.bookerNotes
@@ -511,9 +503,7 @@ export async function sendBookingNotificationToHost(
 
       <a href="${dashboardLink}" style="display: inline-block; background: linear-gradient(135deg, #006bff, #4d94ff); color: #ffffff; padding: 12px 20px; border-radius: 12px; text-decoration: none; font-weight: 500; font-size: 14px;">View event in ${escapeHtml(APP_NAME)}</a>
     `),
-    text: `Hi ${ctx.hostName},\n\nA new event has been scheduled.\n\nEvent Type: ${ctx.eventTitle}\nInvitee: ${ctx.bookerName}\nInvitee Email: ${ctx.bookerEmail}${ctx.bookerPhone ? `\nPhone: ${ctx.bookerPhone}` : ""}\nDate and Time: ${when}\nInvitee Timezone: ${ctx.bookerTimezone}${ctx.meetingUrl ? `\nLocation: ${ctx.meetingUrl}` : ctx.locationAddress ? `\nLocation: ${ctx.locationAddress}` : ""}${ctx.bookerNotes ? `\nNotes: ${ctx.bookerNotes}` : ""}\n\nManage: ${dashboardLink}`,
-    icsRaw,
-    icsMethod: "PUBLISH",
+    text: `Hi ${ctx.hostName},\n\nA new event has been scheduled.\n\nEvent Type: ${ctx.eventTitle}\nInvitee: ${ctx.bookerName}\nInvitee Email: ${ctx.bookerEmail}${ctx.bookerPhone ? `\nPhone: ${ctx.bookerPhone}` : ""}\nDate and Time: ${when}\nInvitee Timezone: ${ctx.bookerTimezone}${ctx.meetingUrl ? `\nLocation: ${ctx.meetingUrl}` : meetingLocationValue(ctx) ? `\nLocation: ${meetingLocationValue(ctx)}` : ""}${ctx.bookerNotes ? `\nNotes: ${ctx.bookerNotes}` : ""}\n\nManage: ${dashboardLink}`,
   }).catch((err) => console.warn("[email] host notification failed:", err))
 }
 
@@ -560,7 +550,6 @@ export async function sendCancellationToHost(
     return
   }
   const when = formatRange(ctx.startUtc, ctx.endUtc, ctx.hostTimezone)
-  const icsRaw = buildHostIcsRaw(ctx, "CANCEL")
 
   await dispatch({
     from: systemFrom(),
@@ -575,8 +564,6 @@ export async function sendCancellationToHost(
       </div>
     `),
     text: `Cancelled: ${ctx.eventTitle}\nWith: ${ctx.bookerName}\nWhen: ${when}`,
-    icsRaw,
-    icsMethod: "CANCEL",
   }).catch((err) => console.warn("[email] host cancellation failed:", err))
 }
 

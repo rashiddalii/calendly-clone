@@ -30,6 +30,23 @@ export class SlotUnavailableError extends Error {
   }
 }
 
+function getLocationLabel(location: string): string | null {
+  switch (location) {
+    case "google_meet":
+      return "Google Meet"
+    case "zoom":
+      return "Zoom"
+    case "teams":
+      return "Microsoft Teams"
+    case "phone":
+      return "Phone call"
+    case "in_person":
+      return "In person"
+    default:
+      return null
+  }
+}
+
 function advisoryLockKeys(value: string): [number, number] {
   const digest = createHash("sha256").update(value).digest()
   return [digest.readInt32BE(0), digest.readInt32BE(4)]
@@ -142,32 +159,20 @@ export async function createBooking(input: CreateBookingInput) {
     }
   }
 
-  // Create Google Calendar event (includes Meet link when location=google_meet).
-  const calendarDescriptionParts: (string | null | undefined)[] = []
-  if (meetingUrl) calendarDescriptionParts.push(`Join: ${meetingUrl}`)
-  if (eventType.location === "phone" && input.bookerPhone)
-    calendarDescriptionParts.push(`Call: ${input.bookerPhone}`)
-  if (eventType.location === "in_person" && eventType.locationAddress)
-    calendarDescriptionParts.push(`Meeting at: ${eventType.locationAddress}`)
-  if (input.bookerNotes) calendarDescriptionParts.push(input.bookerNotes)
-  calendarDescriptionParts.push(`Booked via ${APP_NAME}.`)
-
-  const calendarDescription = calendarDescriptionParts.filter(Boolean).join("\n\n")
-
-  const calendarResult = await createCalendarEvent({
-    userId: eventType.userId,
-    summary: `${eventType.title} with ${input.bookerName}`,
-    description: calendarDescription,
-    startUtc,
-    endUtc,
-    attendeeEmail: input.bookerEmail,
-    attendeeName: input.bookerName,
-    requestMeetLink: eventType.location === "google_meet",
-    physicalLocation:
-      eventType.location === "in_person"
-        ? (eventType.locationAddress ?? undefined)
-        : undefined,
-  })
+  // Re-enable Google Meet generation for Google Meet event types only.
+  // To avoid auto-adding invitees to calendar, we do not include attendees.
+  const calendarResult =
+    eventType.location === "google_meet"
+      ? await createCalendarEvent({
+          userId: eventType.userId,
+          summary: `${eventType.title} with ${input.bookerName}`,
+          description: description,
+          startUtc,
+          endUtc,
+          requestMeetLink: true,
+          disableDefaultReminders: true,
+        })
+      : null
 
   if (eventType.location === "google_meet") {
     meetingUrl = calendarResult?.meetingUrl ?? null
@@ -186,6 +191,7 @@ export async function createBooking(input: CreateBookingInput) {
     bookerTimezone: input.bookerTimezone,
     bookerNotes: input.bookerNotes,
     bookerPhone: input.bookerPhone || null,
+    locationLabel: getLocationLabel(eventType.location),
     locationAddress: eventType.location === "in_person" ? (eventType.locationAddress ?? null) : null,
     bookingId: booking.id,
     icalUid: booking.icalUid!,

@@ -147,10 +147,11 @@ export async function createCalendarEvent(input: {
   description: string
   startUtc: Date
   endUtc: Date
-  attendeeEmail: string
-  attendeeName: string
+  attendeeEmail?: string
+  attendeeName?: string
   requestMeetLink?: boolean
   physicalLocation?: string
+  disableDefaultReminders?: boolean
 }): Promise<{ id: string; meetingUrl: string | null } | null> {
   const token = await getGoogleAccessToken(input.userId)
   if (!token) return null
@@ -163,8 +164,19 @@ export async function createCalendarEvent(input: {
     description: input.description,
     start: { dateTime: input.startUtc.toISOString() },
     end: { dateTime: input.endUtc.toISOString() },
-    attendees: [{ email: input.attendeeEmail, displayName: input.attendeeName }],
-    reminders: { useDefault: true },
+    ...(input.attendeeEmail
+      ? {
+          attendees: [
+            {
+              email: input.attendeeEmail,
+              displayName: input.attendeeName ?? input.attendeeEmail,
+            },
+          ],
+        }
+      : {}),
+    reminders: input.disableDefaultReminders
+      ? { useDefault: false, overrides: [] }
+      : { useDefault: true },
     ...(input.physicalLocation ? { location: input.physicalLocation } : {}),
   }
   if (input.requestMeetLink) {
