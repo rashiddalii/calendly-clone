@@ -516,6 +516,8 @@ export function WizardStep3({
 }) {
   const [connecting, setConnecting] = useState(false);
   const [pending, startTransition] = useTransition();
+  const showAddAnotherAccount = false;
+  const showMeetingDestinationSection = false;
 
   const handleConnect = () => {
     setConnecting(true);
@@ -586,7 +588,7 @@ export function WizardStep3({
               type="button"
               onClick={handleConnect}
               disabled={connecting}
-              className="mt-3 w-full cursor-pointer rounded-xl border border-dashed border-[#CBD5E1] bg-white py-2.5 text-[13px] font-medium text-[#006BFF] transition-colors hover:bg-[#F0F5FF] disabled:opacity-60"
+              className={`${showAddAnotherAccount ? "mt-3 w-full cursor-pointer rounded-xl border border-dashed border-[#CBD5E1] bg-white py-2.5 text-[13px] font-medium text-[#006BFF] transition-colors hover:bg-[#F0F5FF] disabled:opacity-60" : "hidden"}`}
             >
               {connecting ? "Redirecting…" : "+ Add another Google account"}
             </button>
@@ -624,12 +626,17 @@ export function WizardStep3({
             <p className="mt-2 text-center text-xs text-[#94A3B8]">
               You can also skip this and connect later in Settings.
             </p>
+            <p className="mt-1 text-center text-xs font-medium text-amber-600">
+              Connect Google to generate auto Google Meet links.
+            </p>
           </>
         )}
       </div>
 
       {/* ── Section 2: Calendar to add meetings to ──────────────────── */}
-      <div className="mt-5 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
+      <div
+        className={`${showMeetingDestinationSection ? "mt-5 rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm" : "hidden"}`}
+      >
         <h2 className="font-[family-name:var(--font-manrope)] text-sm font-semibold text-[#0F172A]">
           Calendar to add new meetings to
         </h2>

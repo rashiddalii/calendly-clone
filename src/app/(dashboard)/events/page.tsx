@@ -29,12 +29,16 @@ export default async function EventsPage({
   const tab: Tab =
     raw === "single-use" || raw === "polls" ? raw : "event-types"
 
-  const [eventTypes, availability, userRecord] = await Promise.all([
+  const [eventTypes, availability, userRecord, googleAccount] = await Promise.all([
     listEventTypes(session.user.id),
     getWeeklyAvailability(session.user.id),
     prisma.user.findUnique({
       where: { id: session.user.id },
       select: { onboardingData: true },
+    }),
+    prisma.account.findFirst({
+      where: { userId: session.user.id, provider: "google" },
+      select: { id: true },
     }),
   ])
 
@@ -65,6 +69,7 @@ export default async function EventsPage({
           userImage={session.user.image ?? null}
           scheduleSummaryLine={scheduleSummaryLine}
           isFirstTime={isFirstTime}
+          hasGoogleConnected={!!googleAccount}
         />
       )}
 

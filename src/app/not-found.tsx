@@ -42,7 +42,7 @@ export default function NotFound() {
           Go home
         </Link>
         <Link
-          href="/dashboard"
+          href="/events"
           className="rounded-xl px-6 py-2.5 text-sm font-semibold transition-colors"
           style={{ backgroundColor: "#e5edff", color: "#006bff" }}
         >

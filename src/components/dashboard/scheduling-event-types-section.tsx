@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react"
 import Link from "next/link"
 import { ExternalLink, MoreVertical, Search, Sparkles, X } from "lucide-react"
 import type { EventType } from "@/generated/prisma/client"
@@ -35,6 +35,7 @@ export function SchedulingEventTypesSection({
   userImage,
   scheduleSummaryLine,
   isFirstTime = false,
+  hasGoogleConnected,
 }: {
   eventTypes: EventType[]
   username: string | null
@@ -43,10 +44,16 @@ export function SchedulingEventTypesSection({
   userImage: string | null
   scheduleSummaryLine: string
   isFirstTime?: boolean
+  hasGoogleConnected: boolean
 }) {
   const [query, setQuery] = useState("")
   const [detailEvent, setDetailEvent] = useState<EventType | null>(null)
   const [showBanner, setShowBanner] = useState(isFirstTime)
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
 
   useEffect(() => {
     if (isFirstTime) {
@@ -123,6 +130,25 @@ export function SchedulingEventTypesSection({
         </div>
       )}
 
+      {!hasGoogleConnected && (
+        <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-amber-900">
+              Connect Google to generate auto Google Meet links.
+            </p>
+            <p className="mt-1 text-sm text-amber-800">
+              Bookings will still work, but Google Meet links will not be auto-generated until you connect Google.
+            </p>
+          </div>
+          <Link
+            href="/integrations/google-calendar"
+            className="inline-flex h-9 shrink-0 items-center justify-center rounded-md bg-amber-900 px-3 text-xs font-semibold text-white transition-colors hover:bg-amber-950"
+          >
+            Connect Google
+          </Link>
+        </div>
+      )}
+
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9CA3AF]" />
         <input
@@ -167,17 +193,28 @@ export function SchedulingEventTypesSection({
               Set username for landing page
             </Link>
           )}
-          <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-[#6B7280] outline-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30">
+          {isMounted ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-[#6B7280] outline-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30">
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">Host options</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled className="opacity-60">
+                  Sort (soon)
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="inline-flex size-8 items-center justify-center rounded-md text-[#6B7280] opacity-60"
+              aria-label="Host options loading"
+            >
               <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">Host options</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem disabled className="opacity-60">
-                Sort (soon)
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </button>
+          )}
         </div>
       </div>
 

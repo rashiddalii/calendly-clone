@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useState, useSyncExternalStore, useTransition } from "react";
 import {
   Check,
   Copy,
@@ -50,20 +50,22 @@ export function SchedulingEventRow({
   const [isPending, startTransition] = useTransition();
   const [copied, setCopied] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const bookingUrl =
-    typeof window !== "undefined" && username
-      ? `${window.location.origin}/${username}/${eventType.slug}`
-      : username
-        ? `/${username}/${eventType.slug}`
-        : "";
+    username ? `/${username}/${eventType.slug}` : "";
 
   const handleCopy = async () => {
     if (!username) {
       toast.error("Set a username in Settings before sharing.");
       return;
     }
-    await navigator.clipboard.writeText(bookingUrl);
+    const absoluteBookingUrl = `${window.location.origin}${bookingUrl}`;
+    await navigator.clipboard.writeText(absoluteBookingUrl);
     setCopied(true);
     toast.success("Booking link copied");
     setTimeout(() => setCopied(false), 1600);
@@ -86,10 +88,12 @@ export function SchedulingEventRow({
       if (navigator.share) {
         await navigator.share({
           title: eventType.title,
-          url: bookingUrl,
+          url: `${window.location.origin}${bookingUrl}`,
         });
       } else {
-        await navigator.clipboard.writeText(bookingUrl);
+        await navigator.clipboard.writeText(
+          `${window.location.origin}${bookingUrl}`,
+        );
         toast.success("Link copied");
       }
     } catch {
@@ -180,74 +184,85 @@ export function SchedulingEventRow({
           >
             <Share2 className="h-4 w-4" />
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex h-touch w-11 cursor-pointer items-center justify-center rounded-md text-[#6B7280] outline-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30 sm:size-8">
-              <MoreVertical className="h-4 w-4" />
-              <span className="sr-only">More options</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
-              <DropdownMenuItem onClick={handleCopy} className="sm:hidden">
-                {copied ? (
-                  <Check className="h-4 w-4 text-[#6B7280]" />
-                ) : (
-                  <Copy className="h-4 w-4 text-[#6B7280]" />
-                )}
-                {copied ? "Copied" : "Copy link"}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleShare} className="sm:hidden">
-                <Share2 className="h-4 w-4 text-[#6B7280]" />
-                Share
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={openBookingPage}>
-                <ExternalLink className="h-4 w-4 text-[#6B7280]" />
-                View booking page
-              </DropdownMenuItem>
-              {onQuickView ? (
-                <DropdownMenuItem onClick={onQuickView}>
-                  <SlidersHorizontal className="h-4 w-4 text-[#6B7280]" />
-                  Quick view
+          {isMounted ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex h-touch w-11 cursor-pointer items-center justify-center rounded-md text-[#6B7280] outline-none hover:bg-[#F3F4F6] focus-visible:ring-2 focus-visible:ring-[#006BFF]/30 sm:size-8">
+                <MoreVertical className="h-4 w-4" />
+                <span className="sr-only">More options</span>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuItem onClick={handleCopy} className="sm:hidden">
+                  {copied ? (
+                    <Check className="h-4 w-4 text-[#6B7280]" />
+                  ) : (
+                    <Copy className="h-4 w-4 text-[#6B7280]" />
+                  )}
+                  {copied ? "Copied" : "Copy link"}
                 </DropdownMenuItem>
-              ) : null}
-              <DropdownMenuItem>
-                <Link
-                  href={`/events/${eventType.id}/edit`}
-                  className="flex w-full items-center gap-1.5 text-[#111827] no-underline outline-none"
+                <DropdownMenuItem onClick={handleShare} className="sm:hidden">
+                  <Share2 className="h-4 w-4 text-[#6B7280]" />
+                  Share
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={openBookingPage}>
+                  <ExternalLink className="h-4 w-4 text-[#6B7280]" />
+                  View booking page
+                </DropdownMenuItem>
+                {onQuickView ? (
+                  <DropdownMenuItem onClick={onQuickView}>
+                    <SlidersHorizontal className="h-4 w-4 text-[#6B7280]" />
+                    Quick view
+                  </DropdownMenuItem>
+                ) : null}
+                <DropdownMenuItem>
+                  <Link
+                    href={`/events/${eventType.id}/edit`}
+                    className="flex w-full items-center gap-1.5 text-[#111827] no-underline outline-none"
+                  >
+                    <Pencil className="h-4 w-4 text-[#6B7280]" />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem disabled className="opacity-50">
+                  Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  variant="destructive"
+                  onClick={() => setDeleteConfirmOpen(true)}
+                  disabled={isPending}
                 >
-                  <Pencil className="h-4 w-4 text-[#6B7280]" />
-                  Edit
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem disabled className="opacity-50">
-                Duplicate
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                variant="destructive"
-                onClick={() => setDeleteConfirmOpen(true)}
-                disabled={isPending}
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleToggle}
-                disabled={isPending}
-                className="justify-between"
-              >
-                <span>{eventType.isActive ? "Pause" : "Activate"}</span>
-                <span
-                  className={
-                    eventType.isActive
-                      ? "text-xs text-[#006BFF]"
-                      : "text-xs text-[#9CA3AF]"
-                  }
+                  <Trash2 className="h-4 w-4" />
+                  Delete
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={handleToggle}
+                  disabled={isPending}
+                  className="justify-between"
                 >
-                  {eventType.isActive ? "On" : "Off"}
-                </span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <span>{eventType.isActive ? "Pause" : "Activate"}</span>
+                  <span
+                    className={
+                      eventType.isActive
+                        ? "text-xs text-[#006BFF]"
+                        : "text-xs text-[#9CA3AF]"
+                    }
+                  >
+                    {eventType.isActive ? "On" : "Off"}
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <button
+              type="button"
+              disabled
+              className="inline-flex h-touch w-11 items-center justify-center rounded-md text-[#6B7280] opacity-60 sm:size-8"
+              aria-label="More options loading"
+            >
+              <MoreVertical className="h-4 w-4" />
+            </button>
+          )}
         </div>
       </article>
     </>
