@@ -36,6 +36,7 @@ export function SchedulingEventTypesSection({
   scheduleSummaryLine,
   isFirstTime = false,
   hasGoogleConnected,
+  oauthError,
 }: {
   eventTypes: EventType[]
   username: string | null
@@ -45,10 +46,14 @@ export function SchedulingEventTypesSection({
   scheduleSummaryLine: string
   isFirstTime?: boolean
   hasGoogleConnected: boolean
+  oauthError?: string
 }) {
   const [query, setQuery] = useState("")
   const [detailEvent, setDetailEvent] = useState<EventType | null>(null)
   const [showBanner, setShowBanner] = useState(isFirstTime)
+  const [showOAuthConflictBanner] = useState(
+    oauthError === "OAuthAccountNotLinked",
+  )
   const isMounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -60,6 +65,16 @@ export function SchedulingEventTypesSection({
       markEventsGuideSeenAction().catch(() => {})
     }
   }, [isFirstTime])
+
+  useEffect(() => {
+    if (!showOAuthConflictBanner) return
+    const url = new URL(window.location.href)
+    if (url.searchParams.has("error")) {
+      url.searchParams.delete("error")
+      const next = `${url.pathname}${url.search}${url.hash}`
+      window.history.replaceState({}, "", next)
+    }
+  }, [showOAuthConflictBanner])
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -130,7 +145,34 @@ export function SchedulingEventTypesSection({
         </div>
       )}
 
-      {!hasGoogleConnected && (
+      {showOAuthConflictBanner && (
+        <div className="flex flex-col gap-3 rounded-xl border border-rose-200 bg-rose-50 p-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-rose-900">
+              This Google account is already connected to another Fluid account.
+            </p>
+            <p className="mt-1 text-sm text-rose-800">
+              Use a different Google account, or sign in with the account that already has this Google connection.
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Link
+              href="/integrations/google-calendar"
+              className="inline-flex h-9 items-center justify-center rounded-md bg-rose-900 px-3 text-xs font-semibold text-white transition-colors hover:bg-rose-950"
+            >
+              Try another Google account
+            </Link>
+            <Link
+              href="/login"
+              className="inline-flex h-9 items-center justify-center rounded-md border border-rose-300 bg-white px-3 text-xs font-semibold text-rose-900 transition-colors hover:bg-rose-100"
+            >
+              Go to login
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {!hasGoogleConnected && !showOAuthConflictBanner && (
         <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
           <div className="min-w-0">
             <p className="text-sm font-semibold text-amber-900">

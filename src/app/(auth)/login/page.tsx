@@ -76,10 +76,14 @@ interface LoginPageProps {
 }
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await auth();
-  if (session) redirect("/events");
-
   const params = await searchParams;
+  const session = await auth();
+  if (session) {
+    if (params.error === "OAuthAccountNotLinked") {
+      redirect("/events?error=OAuthAccountNotLinked");
+    }
+    redirect("/events");
+  }
   const isExpiredLink = params.error === "Verification";
   const isVerified = params.verified === "1";
   const isReset = params.reset === "1";

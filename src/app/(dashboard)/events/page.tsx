@@ -19,13 +19,14 @@ type Tab = "event-types" | "single-use" | "polls"
 export default async function EventsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; error?: string }>
 }) {
   const session = await auth()
   if (!session?.user?.id) return null
 
   const sp = await searchParams
   const raw = sp.tab
+  const oauthError = sp.error
   const tab: Tab =
     raw === "single-use" || raw === "polls" ? raw : "event-types"
 
@@ -70,6 +71,7 @@ export default async function EventsPage({
           scheduleSummaryLine={scheduleSummaryLine}
           isFirstTime={isFirstTime}
           hasGoogleConnected={!!googleAccount}
+          oauthError={oauthError}
         />
       )}
 
